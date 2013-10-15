@@ -42,7 +42,7 @@ class Stats(object):
         package_revision = table('package_revision')
         package = table('package')
         s = select([package_revision.c.id, func.count(package_revision.c.revision_id)], from_obj=[package_revision.join(package)]).\
-	      where(package.c.private == 'f').\
+	    where(package.c.private == 'f').\
             group_by(package_revision.c.id).\
             order_by(func.count(package_revision.c.revision_id).desc()).\
             limit(limit)
@@ -52,16 +52,28 @@ class Stats(object):
 
     @classmethod
     def largest_groups(cls, limit=10):
-        member = table('member')
-        package = table('package')
-        s = select([member.c.group_id, func.count(member.c.table_id)]).\
+         member = table('member')
+         s = select([member.c.group_id, func.count(member.c.table_id)]).\
             group_by(member.c.group_id).\
-            where(and_(member.c.group_id!=None, member.c.table_name=='package', package.c.private == 'f')).\
+            where(and_(member.c.group_id!=None, member.c.table_name=='package')).\
             order_by(func.count(member.c.table_id).desc()).\
             limit(limit)
 
+         res_ids = model.Session.execute(s).fetchall()
+         res_groups = [(model.Session.query(model.Group).get(unicode(group_id)), val) for group_id, val in res_ids]
+         return res_groups
+
+    @classmethod
+    def by_org(cls, limit=10):
+        group = table('group')
+        package = table('package')
+        s = select([group.c.id, package.c.private, func.count(package.c.private)]).\
+            group_by(group.c.id, package.c.private).\
+            order_by(group.c.id).\
+            limit(limit)
+
         res_ids = model.Session.execute(s).fetchall()
-        res_groups = [(model.Session.query(model.Group).get(unicode(group_id)), val) for group_id, val in res_ids]
+        res_groups = [(model.Session.query(model.Group).get(unicode(group_id)), private, val) for group_id, private, val in res_ids]
         return res_groups
 
     @classmethod
