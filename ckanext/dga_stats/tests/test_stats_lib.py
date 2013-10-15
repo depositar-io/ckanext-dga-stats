@@ -4,8 +4,8 @@ from nose.tools import assert_equal
 from ckan.lib.create_test_data import CreateTestData
 from ckan import model
 
-from ckanext.stats.stats import Stats, RevisionStats
-from ckanext.stats.tests import StatsFixture
+from ckanext.dga_stats.stats import Stats, RevisionStats
+from ckanext.dga_stats.tests import StatsFixture
 
 class TestStatsPlugin(StatsFixture):
     @classmethod

@@ -14,13 +14,13 @@ setup(
 	url='',
 	license='',
 	packages=find_packages(exclude=['ez_setup', 'examples', 'tests']),
-	namespace_packages=['ckanext', 'ckanext.dga-stats'],
+	namespace_packages=['ckanext', 'ckanext.dga_stats'],
 	include_package_data=True,
 	zip_safe=False,
 	install_requires=[],
 	entry_points=\
 	"""
         [ckan.plugins]
-        dga-stats=ckanext.dga-stats.plugin:StatsPlugin
+        dga_stats=ckanext.dga_stats.plugin:StatsPlugin
 	""",
 )

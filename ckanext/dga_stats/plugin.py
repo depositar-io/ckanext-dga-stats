@@ -12,10 +12,10 @@ class StatsPlugin(p.SingletonPlugin):
 
     def after_map(self, map):
         map.connect('stats', '/stats',
-            controller='ckanext.stats.controller:StatsController',
+            controller='ckanext.dga_stats.controller:StatsController',
             action='index')
         map.connect('stats_action', '/stats/{action}',
-            controller='ckanext.stats.controller:StatsController')
+            controller='ckanext.dga_stats.controller:StatsController')
         return map
 
     def update_config(self, config):
@@ -24,4 +24,4 @@ class StatsPlugin(p.SingletonPlugin):
                 templates = 'templates_legacy'
         p.toolkit.add_template_directory(config, templates)
         p.toolkit.add_public_directory(config, 'public')
-        p.toolkit.add_resource('public/ckanext/stats', 'ckanext_stats')
+        p.toolkit.add_resource('public/ckanext/stats', 'ckanext_dga_stats')

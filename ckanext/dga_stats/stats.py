@@ -29,6 +29,7 @@ class Stats(object):
         package = table('package')
         rating = table('rating')
         sql = select([package.c.id, func.avg(rating.c.rating), func.count(rating.c.rating)], from_obj=[package.join(rating)]).\
+	      where(package.c.private == 'f').\
               group_by(package.c.id).\
               order_by(func.avg(rating.c.rating).desc(), func.count(rating.c.rating).desc()).\
               limit(limit)
@@ -39,7 +40,9 @@ class Stats(object):
     @classmethod
     def most_edited_packages(cls, limit=10):
         package_revision = table('package_revision')
-        s = select([package_revision.c.id, func.count(package_revision.c.revision_id)]).\
+        package = table('package')
+        s = select([package_revision.c.id, func.count(package_revision.c.revision_id)], from_obj=[package_revision.join(package)]).\
+	      where(package.c.private == 'f').\
             group_by(package_revision.c.id).\
             order_by(func.count(package_revision.c.revision_id).desc()).\
             limit(limit)
@@ -50,9 +53,10 @@ class Stats(object):
     @classmethod
     def largest_groups(cls, limit=10):
         member = table('member')
+        package = table('package')
         s = select([member.c.group_id, func.count(member.c.table_id)]).\
             group_by(member.c.group_id).\
-            where(and_(member.c.group_id!=None, member.c.table_name=='package')).\
+            where(and_(member.c.group_id!=None, member.c.table_name=='package', package.c.private == 'f')).\
             order_by(func.count(member.c.table_id).desc()).\
             limit(limit)
 
@@ -65,6 +69,7 @@ class Stats(object):
         assert returned_tag_info in ('name', 'id', 'object')
         tag = table('tag')
         package_tag = table('package_tag')
+        package = table('package')
         #TODO filter out tags with state=deleted
         if returned_tag_info == 'name':
             from_obj = [package_tag.join(tag)]
@@ -75,6 +80,7 @@ class Stats(object):
         s = select([tag_column, func.count(package_tag.c.package_id)],
                     from_obj=from_obj)
         s = s.group_by(tag_column).\
+	      where(package.c.private == 'f').\
             order_by(func.count(package_tag.c.package_id).desc()).\
             limit(limit)
         res_col = model.Session.execute(s).fetchall()
@@ -88,6 +94,9 @@ class Stats(object):
     def top_package_owners(cls, limit=10):
         package_role = table('package_role')
         user_object_role = table('user_object_role')
+        package = table('package')
+#	    join(package, package_role.c.package_id == package.c.id).\
+#	    where(package.c.private == 'f').\
         s = select([user_object_role.c.user_id, func.count(user_object_role.c.role)], from_obj=[user_object_role.join(package_role)]).\
             where(user_object_role.c.role==model.authz.Role.ADMIN).\
             where(user_object_role.c.user_id!=None).\
@@ -97,6 +106,24 @@ class Stats(object):
         res_ids = model.Session.execute(s).fetchall()
         res_users = [(model.Session.query(model.User).get(unicode(user_id)), val) for user_id, val in res_ids]
         return res_users
+
+    @classmethod
+    def summary_stats(cls):
+       connection = model.Session.connection()
+#				select name,role from user_object_role inner join \"user\" on user_object_role.user_id = \"user\".id where name not in ('logged_in','visitor') group by name,role"
+
+       res = connection.execute("SELECT 'Total Organisations', count(*) from \"group\" where type = 'organization' and state = 'active' union \
+				select 'Total Datasets', count(*) from package where state='active' or state='draft' or state='draft-complete' union \
+				select 'Total Data Files/Resources', count(*) from resource where state='active'").fetchall();
+       return res
+
+
+    @classmethod
+    def activity_counts(cls):
+       connection = model.Session.connection()
+       res = connection.execute("select to_char(timestamp, 'YYYY-MM') as month,activity_type, count(*) from activity group by month, activity_type order by month;").fetchall();
+       return res
+
 
 class RevisionStats(object):
     @classmethod
@@ -166,7 +193,9 @@ class RevisionStats(object):
             # be 'for all time' else you get first revision in the time period.
             package_revision = table('package_revision')
             revision = table('revision')
-            s = select([package_revision.c.id, func.min(revision.c.timestamp)], from_obj=[package_revision.join(revision)]).group_by(package_revision.c.id).order_by(func.min(revision.c.timestamp))
+            s = select([package_revision.c.id, func.min(revision.c.timestamp)], from_obj=[package_revision.join(revision)]).\
+	      where(package.c.private == 'f').\
+	      group_by(package_revision.c.id).order_by(func.min(revision.c.timestamp))
             res = model.Session.execute(s).fetchall() # [(id, datetime), ...]
             res_pickleable = []
             for pkg_id, created_datetime in res:
@@ -351,3 +380,4 @@ class RevisionStats(object):
         elif type_ in ('new_packages', 'deleted_packages'):
             return [ model.Session.query(model.Package).get(pkg_id) \
                      for pkg_id in object_ids ]
+

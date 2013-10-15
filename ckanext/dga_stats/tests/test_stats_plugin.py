@@ -2,7 +2,7 @@ import os
 
 from ckan.tests import url_for
 
-from ckanext.stats.tests import StatsFixture
+from ckanext.dga_stats.tests import StatsFixture
 
 class TestStatsPlugin(StatsFixture):
 
