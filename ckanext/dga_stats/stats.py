@@ -205,6 +205,7 @@ class RevisionStats(object):
             # be 'for all time' else you get first revision in the time period.
             package_revision = table('package_revision')
             revision = table('revision')
+            package = table('package')
             s = select([package_revision.c.id, func.min(revision.c.timestamp)], from_obj=[package_revision.join(revision)]).\
 	      where(package.c.private == 'f').\
 	      group_by(package_revision.c.id).order_by(func.min(revision.c.timestamp))
