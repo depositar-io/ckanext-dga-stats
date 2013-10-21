@@ -54,7 +54,33 @@
         <p class="empty">{{ _('No groups') }}</p>
       {% endif %}
     </section>
-
+{% if h.check_access('sysadmin') %}
+    <section id="user-access-list" class="module-content tab-content">
+      <h2>{{ _('User Access List') }}</h2>
+      {% if c.user_access_list %}
+        <table class="table table-chunky table-bordered table-striped">
+          <thead>
+            <tr>
+              <th>{{ _('Username') }}</th>
+              <th>{{ _('Sysadmin') }}</th>
+              <th class="metric">{{ _('Organisational Role') }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for username,sysadmin,role in c.user_access_list %}
+              <tr>
+                <td>{{ username }}</td>
+                <td>{{ sysadmin }}</td>
+                <td>{{ role }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <p class="empty">{{ _('No groups') }}</p>
+      {% endif %}
+    </section>
+{% endif %}
     <section id="stats-total-datasets" class="module-content tab-content active">
       <h2>{{ _('Total number of Datasets') }}</h2>
 
@@ -254,9 +280,12 @@
     <h2 class="module-heading"><i class="icon-bar-chart icon-medium"></i> {{ _('Statistics Menu') }}</h2>
     <nav data-module="stats-nav">
       <ul class="unstyled nav nav-simple">
-        <li class="nav-item"><a href="#summary" data-toggle="tab">{{ _('Summary') }}</a></li>
+        <li class="nav-item active"><a href="#summary" data-toggle="tab">{{ _('Summary') }}</a></li>
         <li class="nav-item"><a href="#activity-counts" data-toggle="tab">{{ _('Site Activity Log') }}</a></li>
-        <li class="nav-item active"><a href="#stats-total-datasets" data-toggle="tab">{{ _('Total Number of Datasets') }}</a></li>
+{% if h.check_access('sysadmin') %}
+        <li class="nav-item"><a href="#user-access-list" data-toggle="tab">{{ _('User Access List') }}</a></li>
+{% endif %}
+        <li class="nav-item"><a href="#stats-total-datasets" data-toggle="tab">{{ _('Total Number of Datasets') }}</a></li>
         <li class="nav-item"><a href="#stats-dataset-revisions" data-toggle="tab">{{ _('Dataset Revisions per Week') }}</a></li>
 <!--        <li class="nav-item"><a href="#stats-top-rated" data-toggle="tab">{{ _('Top Rated Datasets') }}</a></li> -->
         <li class="nav-item"><a href="#stats-most-edited" data-toggle="tab">{{ _('Most Edited Datasets') }}</a></li>

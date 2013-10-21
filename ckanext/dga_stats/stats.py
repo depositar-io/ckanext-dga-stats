@@ -122,7 +122,6 @@ class Stats(object):
     @classmethod
     def summary_stats(cls):
        connection = model.Session.connection()
-#				select name,role from user_object_role inner join \"user\" on user_object_role.user_id = \"user\".id where name not in ('logged_in','visitor') group by name,role"
 
        res = connection.execute("SELECT 'Total Organisations', count(*) from \"group\" where type = 'organization' and state = 'active' union \
 				select 'Total Datasets', count(*) from package where state='active' or state='draft' or state='draft-complete' union \
@@ -134,6 +133,12 @@ class Stats(object):
     def activity_counts(cls):
        connection = model.Session.connection()
        res = connection.execute("select to_char(timestamp, 'YYYY-MM') as month,activity_type, count(*) from activity group by month, activity_type order by month;").fetchall();
+       return res
+
+    @classmethod
+    def user_access_list(cls):
+       connection = model.Session.connection()
+       res = connection.execute("select name,sysadmin,role from user_object_role right outer join \"user\" on user_object_role.user_id = \"user\".id where name not in ('logged_in','visitor') group by name,sysadmin,role order by sysadmin desc, role asc;").fetchall();
        return res
 
 
