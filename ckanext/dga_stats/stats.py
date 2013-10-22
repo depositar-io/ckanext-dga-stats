@@ -2,6 +2,7 @@ import datetime
 
 from pylons import config
 from sqlalchemy import Table, select, func, and_
+from sqlalchemy.sql.expression import text
 
 import ckan.plugins as p
 import ckan.model as model
@@ -140,6 +141,16 @@ class Stats(object):
        connection = model.Session.connection()
        res = connection.execute("select name,sysadmin,role from user_object_role right outer join \"user\" on user_object_role.user_id = \"user\".id where name not in ('logged_in','visitor') group by name,sysadmin,role order by sysadmin desc, role asc;").fetchall();
        return res
+
+    @classmethod
+    def recent_datasets(cls):
+        activity = table('activity')
+        package = table('package')
+        s = select([func.max(activity.c.timestamp),package.c.id, activity.c.activity_type], from_obj=[activity.join(package,activity.c.object_id == package.c.id)]).where(package.c.private == 'f').\
+            where(activity.c.timestamp > func.now() - text("interval '60 day'")).group_by(package.c.id,activity.c.activity_type).order_by(func.max(activity.c.timestamp))
+        result = model.Session.execute(s).fetchall()
+	return [(datetime2date(timestamp), model.Session.query(model.Package).get(unicode(package_id)), activity_type) for timestamp,package_id,activity_type in result]
+
 
 
 class RevisionStats(object):
