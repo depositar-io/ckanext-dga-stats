@@ -29,6 +29,7 @@
         <p class="empty">{{ _('No groups') }}</p>
       {% endif %}
     </section>
+{% if h.check_access('sysadmin') %}
     <section id="activity-counts" class="module-content tab-content">
       <h2>{{ _('Site Activity Log') }}</h2>
       {% if c.activity_counts %}
@@ -79,7 +80,6 @@
         <p class="empty">{{ _('No groups') }}</p>
       {% endif %}
     </section>
-{% if h.check_access('sysadmin') %}
     <section id="user-access-list" class="module-content tab-content">
       <h2>{{ _('User Access List') }}</h2>
       {% if c.user_access_list %}
@@ -227,7 +227,7 @@
        <p class="empty">{{ _('No groups') }}</p>
       {% endif %}
     </section>
-
+<!--
     <section id="stats-top-tags" class="module-content tab-content">
       <h2>{{ _('Top Tags') }}</h2>
       <table class="table table-chunky table-bordered table-striped">
@@ -247,7 +247,7 @@
         </tbody>
       </table>
     </section>
-
+-->
     <section id="stats-most-owned" class="module-content tab-content">
       <h2>{{ _('Users Owning Most Datasets') }}</h2>
       <table class="table table-chunky table-bordered table-striped">
@@ -267,7 +267,7 @@
         </tbody>
       </table>
     </section>
-    <section id="stats-by-org" class="module-content tab-content">
+<!--    <section id="stats-by-org" class="module-content tab-content">
       <h2>{{ _('Datasets by Organization') }}</h2>
       {% if c.by_org %}
         <table class="table table-chunky table-bordered table-striped">
@@ -296,7 +296,7 @@
         <p class="empty">{{ _('No groups') }}</p>
       {% endif %}
     </section>
-
+-->
   </article>
 {% endblock %}
 
@@ -306,18 +306,18 @@
     <nav data-module="stats-nav">
       <ul class="unstyled nav nav-simple">
         <li class="nav-item active"><a href="#summary" data-toggle="tab">{{ _('Summary') }}</a></li>
+{% if h.check_access('sysadmin') %}
         <li class="nav-item"><a href="#activity-counts" data-toggle="tab">{{ _('Site Activity Log') }}</a></li>
         <li class="nav-item"><a href="#recent-datasets" data-toggle="tab">{{ _('Recent Datasets') }}</a></li>
-{% if h.check_access('sysadmin') %}
         <li class="nav-item"><a href="#user-access-list" data-toggle="tab">{{ _('User Access List') }}</a></li>
 {% endif %}
         <li class="nav-item"><a href="#stats-total-datasets" data-toggle="tab">{{ _('Total Number of Datasets') }}</a></li>
         <li class="nav-item"><a href="#stats-dataset-revisions" data-toggle="tab">{{ _('Dataset Revisions per Week') }}</a></li>
 <!--        <li class="nav-item"><a href="#stats-top-rated" data-toggle="tab">{{ _('Top Rated Datasets') }}</a></li> -->
         <li class="nav-item"><a href="#stats-most-edited" data-toggle="tab">{{ _('Most Edited Datasets') }}</a></li>
-        <li class="nav-item"><a href="#stats-top-tags" data-toggle="tab">{{ _('Top Tags') }}</a></li>
+<!--        <li class="nav-item"><a href="#stats-top-tags" data-toggle="tab">{{ _('Top Tags') }}</a></li> -->
         <li class="nav-item"><a href="#stats-most-owned" data-toggle="tab">{{ _('Users Owning Most Datasets') }}</a></li>
-        <li class="nav-item"><a href="#stats-by-org" data-toggle="tab">{{ _('Datasets by Organization') }}</a></li>
+<!--        <li class="nav-item"><a href="#stats-by-org" data-toggle="tab">{{ _('Datasets by Organization') }}</a></li> -->
       </ul>
     </nav>
   </section>

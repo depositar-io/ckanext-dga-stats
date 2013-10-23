@@ -57,8 +57,8 @@ class Stats(object):
          s = select([member.c.group_id, func.count(member.c.table_id)]).\
             group_by(member.c.group_id).\
             where(and_(member.c.group_id!=None, member.c.table_name=='package')).\
-            order_by(func.count(member.c.table_id).desc()).\
-            limit(limit)
+            order_by(func.count(member.c.table_id).desc())
+            #limit(limit)
 
          res_ids = model.Session.execute(s).fetchall()
          res_groups = [(model.Session.query(model.Group).get(unicode(group_id)), val) for group_id, val in res_ids]
@@ -68,10 +68,11 @@ class Stats(object):
     def by_org(cls, limit=10):
         group = table('group')
         package = table('package')
-        s = select([group.c.id, package.c.private, func.count(package.c.private)]).\
+        s = select([group.c.id, package.c.private, func.count('*')], group_by=[group.c.id, package.c.private]).\
+	    where(group.c.is_organization == True).\
             group_by(group.c.id, package.c.private).\
-            order_by(group.c.id).\
-            limit(limit)
+            order_by(group.c.name)
+            #limit(limit)
 
         res_ids = model.Session.execute(s).fetchall()
         res_groups = [(model.Session.query(model.Group).get(unicode(group_id)), private, val) for group_id, private, val in res_ids]
@@ -108,10 +109,9 @@ class Stats(object):
         package_role = table('package_role')
         user_object_role = table('user_object_role')
         package = table('package')
-#	    join(package, package_role.c.package_id == package.c.id).\
-#	    where(package.c.private == 'f').\
-        s = select([user_object_role.c.user_id, func.count(user_object_role.c.role)], from_obj=[user_object_role.join(package_role)]).\
+        s = select([user_object_role.c.user_id, func.count(user_object_role.c.role)], from_obj=[user_object_role.join(package_role).join(package, package_role.c.package_id == package.c.id)]).\
             where(user_object_role.c.role==model.authz.Role.ADMIN).\
+            where(package.c.private == 'f').\
             where(user_object_role.c.user_id!=None).\
             group_by(user_object_role.c.user_id).\
             order_by(func.count(user_object_role.c.role).desc()).\
@@ -222,7 +222,7 @@ class RevisionStats(object):
             package_revision = table('package_revision')
             revision = table('revision')
             package = table('package')
-            s = select([package_revision.c.id, func.min(revision.c.timestamp)], from_obj=[package_revision.join(revision)]).\
+            s = select([package_revision.c.id, func.min(revision.c.timestamp)], from_obj=[package_revision.join(revision).join(package)]).\
 	      where(package.c.private == 'f').\
 	      group_by(package_revision.c.id).order_by(func.min(revision.c.timestamp))
             res = model.Session.execute(s).fetchall() # [(id, datetime), ...]
