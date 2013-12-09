@@ -124,8 +124,9 @@ class Stats(object):
     def summary_stats(cls):
        connection = model.Session.connection()
 
+#				select 'Total Archived Datasets', count(*) from package where (state='active' or state='draft' or state='draft-complete') and private = 't' union \
        res = connection.execute("SELECT 'Total Organisations', count(*) from \"group\" where type = 'organization' and state = 'active' union \
-				select 'Total Datasets', count(*) from package where state='active' or state='draft' or state='draft-complete' union \
+				select 'Total Datasets', count(*) from package where (state='active' or state='draft' or state='draft-complete') and private = 'f' union \
 				select 'Total Data Files/Resources', count(*) from resource where state='active'").fetchall();
        return res
 
