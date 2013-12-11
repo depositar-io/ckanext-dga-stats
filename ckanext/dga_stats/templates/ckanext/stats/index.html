@@ -227,7 +227,7 @@
        <p class="empty">{{ _('No groups') }}</p>
       {% endif %}
     </section>
-<!--
+{% if False %}
     <section id="stats-top-tags" class="module-content tab-content">
       <h2>{{ _('Top Tags') }}</h2>
       <table class="table table-chunky table-bordered table-striped">
@@ -247,7 +247,6 @@
         </tbody>
       </table>
     </section>
--->
     <section id="stats-most-owned" class="module-content tab-content">
       <h2>{{ _('Users Owning Most Datasets') }}</h2>
       <table class="table table-chunky table-bordered table-striped">
@@ -267,7 +266,8 @@
         </tbody>
       </table>
     </section>
-<!--    <section id="stats-by-org" class="module-content tab-content">
+{% endif %}
+    <section id="stats-by-org" class="module-content tab-content">
       <h2>{{ _('Datasets by Organization') }}</h2>
       {% if c.by_org %}
         <table class="table table-chunky table-bordered table-striped">
@@ -280,6 +280,7 @@
           </thead>
           <tbody>
             {% for group,private, num_packages in c.by_org %}
+		{% if private == False or h.check_access('sysadmin') %}
               <tr>
                 <td>{{ h.link_to(group.title or group.name, h.url_for(controller='organization', action='read', id=group.name)) }}</td>
 		{% if private == True %}
@@ -289,6 +290,7 @@
 		{% endif %}
                 <td class="metric">{{ num_packages }}</td>
               </tr>
+		{% endif %}
             {% endfor %}
           </tbody>
         </table>
@@ -296,7 +298,6 @@
         <p class="empty">{{ _('No groups') }}</p>
       {% endif %}
     </section>
--->
   </article>
 {% endblock %}
 
@@ -315,9 +316,9 @@
         <li class="nav-item"><a href="#stats-dataset-revisions" data-toggle="tab">{{ _('Dataset Revisions per Week') }}</a></li>
 <!--        <li class="nav-item"><a href="#stats-top-rated" data-toggle="tab">{{ _('Top Rated Datasets') }}</a></li> -->
         <li class="nav-item"><a href="#stats-most-edited" data-toggle="tab">{{ _('Most Edited Datasets') }}</a></li>
-<!--        <li class="nav-item"><a href="#stats-top-tags" data-toggle="tab">{{ _('Top Tags') }}</a></li> -->
-        <li class="nav-item"><a href="#stats-most-owned" data-toggle="tab">{{ _('Users Owning Most Datasets') }}</a></li>
-<!--        <li class="nav-item"><a href="#stats-by-org" data-toggle="tab">{{ _('Datasets by Organization') }}</a></li> -->
+<!--        <li class="nav-item"><a href="#stats-top-tags" data-toggle="tab">{{ _('Top Tags') }}</a></li>
+        <li class="nav-item"><a href="#stats-most-owned" data-toggle="tab">{{ _('Users Owning Most Datasets') }}</a></li> -->
+        <li class="nav-item"><a href="#stats-by-org" data-toggle="tab">{{ _('Datasets by Organization') }}</a></li> 
       </ul>
     </nav>
   </section>

@@ -56,7 +56,9 @@ class Stats(object):
          member = table('member')
          s = select([member.c.group_id, func.count(member.c.table_id)]).\
             group_by(member.c.group_id).\
-            where(and_(member.c.group_id!=None, member.c.table_name=='package')).\
+            where(member.c.group_id!=None).\
+	    where(member.c.table_name=='package').\
+	    where(member.c.capacity=='public').\
             order_by(func.count(member.c.table_id).desc())
             #limit(limit)
 
@@ -66,16 +68,13 @@ class Stats(object):
 
     @classmethod
     def by_org(cls, limit=10):
-        group = table('group')
-        package = table('package')
-        s = select([group.c.id, package.c.private, func.count('*')], group_by=[group.c.id, package.c.private]).\
-	    where(group.c.is_organization == True).\
-            group_by(group.c.id, package.c.private).\
-            order_by(group.c.name)
-            #limit(limit)
-
-        res_ids = model.Session.execute(s).fetchall()
-        res_groups = [(model.Session.query(model.Group).get(unicode(group_id)), private, val) for group_id, private, val in res_ids]
+        connection = model.Session.connection()
+        res = connection.execute("select package.owner_org, package.private, count(*) from package \
+		inner join \"group\" on package.owner_org = \"group\".id \
+		where package.state='active'\
+		group by package.owner_org,\"group\".name, package.private \
+		order by \"group\".name, package.private;").fetchall();
+        res_groups = [(model.Session.query(model.Group).get(unicode(group_id)), private, val) for group_id, private, val in res]
         return res_groups
 
     @classmethod
