@@ -78,6 +78,20 @@ class Stats(object):
         return res_groups
 
     @classmethod
+    def top_active_orgs(cls, limit=10):
+        connection = model.Session.connection()
+        res = connection.execute("select package.owner_org, count(*) from package \
+		inner join \"group\" on package.owner_org = \"group\".id \
+                inner join (select distinct object_id from activity where activity.timestamp > (now() - interval '60 day')) \
+                latestactivities on latestactivities.object_id = package.id \
+                where package.state='active' \
+                and package.private = 'f' \
+                group by package.owner_org \
+                order by count(*) desc;").fetchall();
+        res_groups = [(model.Session.query(model.Group).get(unicode(group_id)), val) for group_id, val in res]
+        return res_groups
+
+    @classmethod
     def top_tags(cls, limit=10, returned_tag_info='object'): # by package
         assert returned_tag_info in ('name', 'id', 'object')
         tag = table('tag')

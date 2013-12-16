@@ -185,7 +185,7 @@
         <table class="table table-chunky table-bordered table-striped">
           <thead>
             <tr>
-              <th>{{ _('Group') }}</th>
+              <th>{{ _('Organisation') }}</th>
               <th>{{ _('Public/Archived') }}</th>
               <th class="metric">{{ _('Number of datasets') }}</th>
             </tr>
@@ -203,6 +203,29 @@
                 <td class="metric">{{ num_packages }}</td>
               </tr>
 		{% endif %}
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <p class="empty">{{ _('No groups') }}</p>
+      {% endif %}
+    </section>
+    <section id="stats-activity-org" class="module-content tab-content">
+      <h2>{{ _('Most Active Organisations') }}</h2>
+      {% if c.top_active_orgs %}
+        <table class="table table-chunky table-bordered table-striped">
+          <thead>
+            <tr>
+              <th>{{ _('Organisation') }}</th>
+              <th class="metric">{{ _('Number of datasets updated recently') }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for group, num_packages in c.top_active_orgs %}
+              <tr>
+                <td>{{ h.link_to(group.title or group.name, h.url_for(controller='organization', action='read', id=group.name)) }}</td>
+                <td class="metric">{{ num_packages }}</td>
+              </tr>
             {% endfor %}
           </tbody>
         </table>
