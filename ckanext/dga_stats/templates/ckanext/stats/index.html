@@ -210,6 +210,35 @@
         <p class="empty">{{ _('No groups') }}</p>
       {% endif %}
     </section>
+    <section id="stats-res-by-org" class="module-content tab-content">
+      <h2>{{ _('Resources by Organization') }}</h2>
+      {% if c.res_by_org %}
+        <table class="table table-chunky table-bordered table-striped">
+          <thead>
+            <tr>
+              <th>{{ _('Organisation') }}</th>
+              <th>{{ _('Tabular') }}</th>
+              <th>{{ _('Spatial') }}</th>
+              <th>{{ _('Other') }}</th>
+              <th class="metric">{{ _('Total') }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for group,t,s,o,tot in c.res_by_org %}
+              <tr>
+                <td>{{ h.link_to(group.title or group.name, h.url_for(controller='organization', action='read', id=group.name)) }}</td>
+                <td>{{ t }}</td>
+                <td>{{ s }}</td>
+                <td>{{ o }}</td>
+                <td class="metric">{{ tot }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <p class="empty">{{ _('No groups') }}</p>
+      {% endif %}
+    </section>
     <section id="stats-activity-org" class="module-content tab-content">
       <h2>{{ _('Most Active Organisations') }}</h2>
       {% if c.top_active_orgs %}
@@ -274,6 +303,7 @@
         <li class="nav-item"><a href="#stats-dataset-revisions" data-toggle="tab">{{ _('Dataset Revisions per Week') }}</a></li>
         <li class="nav-item"><a href="#stats-most-edited" data-toggle="tab">{{ _('Most Edited Datasets') }}</a></li>
         <li class="nav-item"><a href="#stats-by-org" data-toggle="tab">{{ _('Datasets by Organization') }}</a></li> 
+        <li class="nav-item"><a href="#stats-res-by-org" data-toggle="tab">{{ _('Resources by Organization') }}</a></li> 
         <li class="nav-item active"><a href="#stats-summary" data-toggle="tab">{{ _('Summary') }}</a></li> 
       </ul>
     </nav>

@@ -7,6 +7,8 @@ from sqlalchemy.sql.expression import text
 import ckan.plugins as p
 import ckan.model as model
 
+import re
+
 cache_enabled = p.toolkit.asbool(config.get('ckanext.stats.cache_enabled', 'True'))
 
 if cache_enabled:
@@ -76,6 +78,30 @@ class Stats(object):
 		order by \"group\".name, package.private;").fetchall();
         res_groups = [(model.Session.query(model.Group).get(unicode(group_id)), private, val) for group_id, private, val in res]
         return res_groups
+
+    @classmethod
+    def res_by_org(cls, limit=10):
+        connection = model.Session.connection()
+        reses = connection.execute("select owner_org,format,count(*) from \
+		resource inner join resource_group on resource.resource_group_id = resource_group.id \
+		inner join package on resource_group.package_id = package.id group by owner_org,format order by count desc;").fetchall();
+	group_ids = []
+	group_tab = {}
+	group_spatial = {}
+	group_other = {}
+        for group_id,format,count in reses:
+		if group_id not in group_ids:
+			group_ids.append(group_id) 
+			group_tab[group_id] = 0
+			group_spatial[group_id] = 0 
+			group_other[group_id] = 0
+		if re.search('xls|csv|ms-excel|spreadsheetml.sheet|zip|netcdf',format, re.IGNORECASE):
+			group_tab[group_id] = group_tab[group_id] + count
+		elif re.search('wms|wfs|wcs|shp|kml|kmz',format, re.IGNORECASE):
+			group_spatial[group_id] = group_spatial[group_id] + count
+		else:
+			group_other[group_id] = group_other[group_id] + count
+	return [(model.Session.query(model.Group).get(unicode(group_id)), group_tab[group_id],group_spatial[group_id],group_other[group_id], group_tab[group_id]+group_spatial[group_id]+group_other[group_id]) for group_id in group_ids]
 
     @classmethod
     def top_active_orgs(cls, limit=10):
