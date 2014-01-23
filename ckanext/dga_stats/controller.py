@@ -12,7 +12,6 @@ class StatsController(BaseController):
         c.top_rated_packages = stats.top_rated_packages()
         c.most_edited_packages = stats.most_edited_packages()
         c.largest_groups = stats.largest_groups()
-        c.top_tags = stats.top_tags()
         c.top_package_owners = stats.top_package_owners()
         c.summary_stats = stats.summary_stats()
         c.activity_counts = stats.activity_counts()

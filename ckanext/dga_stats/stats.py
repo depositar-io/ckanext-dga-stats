@@ -118,32 +118,6 @@ class Stats(object):
         return res_groups
 
     @classmethod
-    def top_tags(cls, limit=10, returned_tag_info='object'): # by package
-        assert returned_tag_info in ('name', 'id', 'object')
-        tag = table('tag')
-        package_tag = table('package_tag')
-        package = table('package')
-        #TODO filter out tags with state=deleted
-        if returned_tag_info == 'name':
-            from_obj = [package_tag.join(tag)]
-            tag_column = tag.c.name
-        else:
-            from_obj = None
-            tag_column = package_tag.c.tag_id
-        s = select([tag_column, func.count(package_tag.c.package_id)],
-                    from_obj=from_obj)
-        s = s.group_by(tag_column).\
-	      where(package.c.private == 'f').\
-            order_by(func.count(package_tag.c.package_id).desc()).\
-            limit(limit)
-        res_col = model.Session.execute(s).fetchall()
-        if returned_tag_info in ('id', 'name'):
-            return res_col
-        elif returned_tag_info == 'object':
-            res_tags = [(model.Session.query(model.Tag).get(unicode(tag_id)), val) for tag_id, val in res_col]
-            return res_tags
-
-    @classmethod
     def top_package_owners(cls, limit=10):
         package_role = table('package_role')
         user_object_role = table('user_object_role')
