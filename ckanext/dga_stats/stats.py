@@ -143,8 +143,7 @@ class Stats(object):
 				select 'Total Datasets', count(*) from package inner join (select distinct package_id from resource_group inner join resource on resource.resource_group_id = resource_group.id) as r on package.id = r.package_id where (package.state='active' or package.state='draft' or package.state='draft-complete') and private = 'f' union \
 				select 'Total Archived Datasets', count(*) from package where (state='active' or state='draft' or state='draft-complete') and private = 't' union \
 				select 'Total Data Files/Resources', count(*) from resource where state='active' union \
-				select 'Total Machine Readable/Data API Resources', count(*) from resource where state='active' and (webstore_url = 'active' or format="wms")\
-				").fetchall();
+				select 'Total Machine Readable/Data API Resources', count(*) from resource where state='active' and (webstore_url = 'active' or format='wms')").fetchall();
        return res
 
 
