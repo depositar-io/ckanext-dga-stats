@@ -81,6 +81,18 @@ class Stats(object):
         return res_groups
 
     @classmethod
+    def by_proj(cls, limit=10):
+        connection = model.Session.connection()
+        res = connection.execute("select value, count(*) from package_extra inner join package on package_extra.package_id = package.id where package.state = 'active' and package_extra.key = 'proj' group by value").fetchall();
+        return res
+
+    @classmethod
+    def by_data_type(cls, limit=10):
+        connection = model.Session.connection()
+        res = connection.execute("select value, count(*) from package_extra inner join package on package_extra.package_id = package.id where package.state = 'active' and package_extra.key = 'data_type' group by value order by count desc").fetchall();
+        return res
+
+    @classmethod
     def res_by_org(cls, limit=10):
         connection = model.Session.connection()
         reses = connection.execute("select owner_org,format,count(*) from \
@@ -103,6 +115,12 @@ class Stats(object):
 		else:
 			group_other[group_id] = group_other[group_id] + count
 	return [(model.Session.query(model.Group).get(unicode(group_id)), group_tab[group_id],group_spatial[group_id],group_other[group_id], group_tab[group_id]+group_spatial[group_id]+group_other[group_id]) for group_id in group_ids]
+
+    @classmethod
+    def res_by_format(cls, limit=10):
+        connection = model.Session.connection()
+        res = connection.execute("select format, count(*) from resource where state = 'active' group by format order by count desc").fetchall();
+        return res
 
     @classmethod
     def top_active_orgs(cls, limit=10):

@@ -64,8 +64,8 @@
           <thead>
             <tr>
               <th>{{ _('Username') }}</th>
-              <th>{{ _('Sysadmin') }}</th>
-              <th class="metric">{{ _('Organisational Role') }}</th>
+              <th>{{ _('Sysadmins') }}</th>
+              <th class="metric">{{ _('Role') }}</th>
             </tr>
           </thead>
           <tbody>
@@ -124,7 +124,7 @@
             <tr>
               <th data-type="date" data-value="{{ row.date.strftime("%s") }}"><time datetime="{{ row.date.isoformat() }}">{{ h.render_datetime(row.date) }}</time></th>
               <td>{{ row.total_revisions }}</td>
-              <td>{{ c.raw_new_datasets[loop.index0].new_packages }}</td>
+	      <td></td>
             </tr>
           {% endfor %}
         </tbody>
@@ -185,8 +185,8 @@
         <table class="table table-chunky table-bordered table-striped">
           <thead>
             <tr>
-              <th>{{ _('Organisation') }}</th>
-              <th>{{ _('Public/Archived') }}</th>
+              <th>{{ _('Organization') }}</th>
+              <th>{{ _('Public/Private') }}</th>
               <th class="metric">{{ _('Number of datasets') }}</th>
             </tr>
           </thead>
@@ -196,9 +196,9 @@
               <tr>
                 <td>{{ h.link_to(group.title or group.name, h.url_for(controller='organization', action='read', id=group.name)) }}</td>
 		{% if private == True %}
-	                <td>Archived</td>
+	                <td>{{ _('Private') }}</td>
 		{% else %}
-	                <td>Public</td>
+	                <td>{{ _('Public') }}</td>
 		{% endif %}
                 <td class="metric">{{ num_packages }}</td>
               </tr>
@@ -210,17 +210,67 @@
         <p class="empty">{{ _('No groups') }}</p>
       {% endif %}
     </section>
+    <section id="stats-by-proj" class="module-content tab-content">
+      <h2>{{ _('Datasets by Project') }}</h2>
+      {% if c.by_proj %}
+        <table class="table table-chunky table-bordered table-striped">
+          <thead>
+            <tr>
+              <th>{{ _('Project') }}</th>
+              <th class="metric">{{ _('Number of datasets') }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for project, num_packages in c.by_proj %}
+                {% if h.check_access('sysadmin') %}
+              <tr>
+                <td>{{ project }}</td>
+                <td class="metric">{{ num_packages }}</td>
+              </tr>
+                {% endif %}
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <p class="empty">{{ _('No projects') }}</p>
+      {% endif %}
+    </section>
+    <section id="stats-by-data-type" class="module-content tab-content">
+      <h2>{{ _('Datasets by Data Type') }}</h2>
+      {% if c.by_data_type %}
+        <table class="table table-chunky table-bordered table-striped">
+          <thead>
+            <tr>
+              <th>{{ _('Data Type') }}</th>
+              <th class="metric">{{ _('Number of datasets') }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for data_type, num_packages in c.by_data_type %}
+                {% if h.check_access('sysadmin') %}
+              <tr>
+                <td>{{ data_type }}</td>
+                <td class="metric">{{ num_packages }}</td>
+              </tr>
+                {% endif %}
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <p class="empty">{{ _('No data types') }}</p>
+      {% endif %}
+    </section>
     <section id="stats-res-by-org" class="module-content tab-content">
       <h2>{{ _('Resources by Organization') }}</h2>
       {% if c.res_by_org %}
         <table class="table table-chunky table-bordered table-striped">
           <thead>
             <tr>
-              <th>{{ _('Organisation') }}</th>
+              <th>{{ _('Organization') }}</th>
               <th>{{ _('Tabular') }}</th>
-              <th>{{ _('Spatial') }}</th>
+              <th>{{ _('Spatial Type') }}</th>
               <th>{{ _('Other') }}</th>
-              <th class="metric">{{ _('Total') }}</th>
+              <th class="metric">{{ _('Total Number of datasets') }}</th>
             </tr>
           </thead>
           <tbody>
@@ -237,6 +287,31 @@
         </table>
       {% else %}
         <p class="empty">{{ _('No groups') }}</p>
+      {% endif %}
+    </section>
+    <section id="stats-res-by-format" class="module-content tab-content">
+      <h2>{{ _('Resources by Format') }}</h2>
+      {% if c.res_by_format %}
+        <table class="table table-chunky table-bordered table-striped">
+          <thead>
+            <tr>
+              <th>{{ _('Format') }}</th>
+              <th class="metric">{{ _('Number of datasets') }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for format, num_packages in c.res_by_format %}
+                {% if h.check_access('sysadmin') %}
+              <tr>
+                <td>{{ format }}</td>
+                <td class="metric">{{ num_packages }}</td>
+              </tr>
+                {% endif %}
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <p class="empty">{{ _('No formats') }}</p>
       {% endif %}
     </section>
     <section id="stats-activity-org" class="module-content tab-content">
@@ -302,10 +377,13 @@
         <li class="nav-item"><a href="#stats-total-datasets" data-toggle="tab">{{ _('Total Number of Datasets') }}</a></li>
         <li class="nav-item"><a href="#stats-dataset-revisions" data-toggle="tab">{{ _('Dataset Revisions per Week') }}</a></li>
         <li class="nav-item"><a href="#stats-most-edited" data-toggle="tab">{{ _('Most Edited Datasets') }}</a></li>
-        <li class="nav-item"><a href="#stats-by-org" data-toggle="tab">{{ _('Datasets by Organization') }}</a></li> 
+        <li class="nav-item"><a href="#stats-by-org" data-toggle="tab">{{ _('Datasets by Organization') }}</a></li>
+	<li class="nav-item"><a href="#stats-by-proj" data-toggle="tab">{{ _('Datasets by Project') }}</a></li>
+	<li class="nav-item"><a href="#stats-by-data-type" data-toggle="tab">{{ _('Datasets by Data Type') }}</a></li>
         <li class="nav-item"><a href="#stats-res-by-org" data-toggle="tab">{{ _('Resources by Organization') }}</a></li> 
-        <li class="nav-item"><a href="#stats-activity-org" data-toggle="tab">{{ _('Most Active Organisations') }}</a></li>
-        <li class="nav-item"><a href="//data.gov.au/site-usage">Site Analytics</a></li>
+	<li class="nav-item"><a href="#stats-res-by-format" data-toggle="tab">{{ _('Resources by Format') }}</a></li>
+	<li class="nav-item"><a href="#stats-activity-org" data-toggle="tab">{{ _('Most Active Organisations') }}</a></li>
+	<li class="nav-item"><a href="//taijiang.tw/data/site-usage">{{ _('Site Analytics') }}</a></li>
         <li class="nav-item active"><a href="#stats-summary" data-toggle="tab">{{ _('Summary') }}</a></li> 
       </ul>
     </nav>
