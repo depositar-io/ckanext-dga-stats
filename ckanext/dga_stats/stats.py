@@ -83,7 +83,7 @@ class Stats(object):
     @classmethod
     def by_proj(cls, limit=10):
         connection = model.Session.connection()
-        res = connection.execute("select value, count(*) from package_extra inner join package on package_extra.package_id = package.id where package.state = 'active' and package_extra.key = 'proj' group by value").fetchall();
+        res = connection.execute("select value, count(*) from package_extra inner join package on package_extra.package_id = package.id where package.state = 'active' and package_extra.key = 'proj' group by value order by value").fetchall();
         return res
 
     @classmethod
