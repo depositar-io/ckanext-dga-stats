@@ -97,7 +97,8 @@ class Stats(object):
         connection = model.Session.connection()
         reses = connection.execute("select owner_org,format,count(*) from \
 		resource inner join resource_group on resource.resource_group_id = resource_group.id \
-		inner join package on resource_group.package_id = package.id group by owner_org,format order by count desc;").fetchall();
+		inner join package on resource_group.package_id = package.id where resource.state = 'active' \
+                group by owner_org,format order by count desc;").fetchall();
 	group_ids = []
 	group_tab = {}
 	group_spatial = {}
@@ -108,7 +109,7 @@ class Stats(object):
 			group_tab[group_id] = 0
 			group_spatial[group_id] = 0 
 			group_other[group_id] = 0
-		if re.search('xls|csv|ms-excel|spreadsheetml.sheet|zip|netcdf',format, re.IGNORECASE):
+		if re.search('xls|csv|ms-excel|spreadsheetml.sheet|netcdf',format, re.IGNORECASE):
 			group_tab[group_id] = group_tab[group_id] + count
 		elif re.search('wms|wfs|wcs|shp|kml|kmz',format, re.IGNORECASE):
 			group_spatial[group_id] = group_spatial[group_id] + count
