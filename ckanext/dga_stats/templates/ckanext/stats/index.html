@@ -1,7 +1,7 @@
 {% extends "page.html" %}
 
 {% block breadcrumb_content %}
-  <li class="active">{{ 'Statistics' }}</li>
+  <li class="active">{{ _('Statistics') }}</li>
 {% endblock %}
 
 {% block primary_content %}
@@ -270,7 +270,7 @@
               <th>{{ _('Tabular') }}</th>
               <th>{{ _('Spatial Type') }}</th>
               <th>{{ _('Other') }}</th>
-              <th class="metric">{{ _('Total Number of datasets') }}</th>
+              <th class="metric">{{ _('Total Number of Resources') }}</th>
             </tr>
           </thead>
           <tbody>
@@ -296,7 +296,7 @@
           <thead>
             <tr>
               <th>{{ _('Format') }}</th>
-              <th class="metric">{{ _('Number of datasets') }}</th>
+              <th class="metric">{{ _('Number of Resources') }}</th>
             </tr>
           </thead>
           <tbody>
@@ -315,12 +315,12 @@
       {% endif %}
     </section>
     <section id="stats-activity-org" class="module-content tab-content">
-      <h2>{{ _('Most Active Organisations') }}</h2>
+      <h2>{{ _('Most Active Organizations') }}</h2>
       {% if c.top_active_orgs %}
         <table class="table table-chunky table-bordered table-striped">
           <thead>
             <tr>
-              <th>{{ _('Organisation') }}</th>
+              <th>{{ _('Organization') }}</th>
               <th class="metric">{{ _('Number of datasets updated recently') }}</th>
             </tr>
           </thead>
@@ -351,7 +351,7 @@
             {% for measure,value in c.summary_stats %}
 		{%  if 'Archived' not in measure or h.check_access('sysadmin') %}
               <tr>
-                <td>{{measure}}</td>
+                <td>{{ _(measure) }}</td>
                 <td class="metric">{{ value }}</td>
               </tr>
 		{% endif %}
@@ -382,7 +382,7 @@
 	<li class="nav-item"><a href="#stats-by-data-type" data-toggle="tab">{{ _('Datasets by Data Type') }}</a></li>
         <li class="nav-item"><a href="#stats-res-by-org" data-toggle="tab">{{ _('Resources by Organization') }}</a></li> 
 	<li class="nav-item"><a href="#stats-res-by-format" data-toggle="tab">{{ _('Resources by Format') }}</a></li>
-	<li class="nav-item"><a href="#stats-activity-org" data-toggle="tab">{{ _('Most Active Organisations') }}</a></li>
+	<li class="nav-item"><a href="#stats-activity-org" data-toggle="tab">{{ _('Most Active Organizations') }}</a></li>
 	<li class="nav-item"><a href="//taijiang.tw/data/site-usage">{{ _('Site Analytics') }}</a></li>
         <li class="nav-item active"><a href="#stats-summary" data-toggle="tab">{{ _('Summary') }}</a></li> 
       </ul>
