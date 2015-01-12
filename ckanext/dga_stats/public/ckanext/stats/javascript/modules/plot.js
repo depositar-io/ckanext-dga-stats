@@ -79,7 +79,8 @@ this.ckan.module('plot', function (jQuery, _) {
      */
     setupCanvas: function () {
       this.canvas = jQuery('<div class="module-plot-canvas">');
-      this.el.replaceWith(this.canvas);
+      this.el.addClass('hidden-table').after(this.canvas).before(jQuery('<div>').addClass('table-plot-switch plot-view')
+        .html('<span class="plot btn btn-info">Switch to table</span><span class="table btn btn-info">Switch to graph</span>').on('click', this.plotSwitch));
     },
 
     /* Attempts to draw the chart if the canvas is visible. If not visible the
@@ -204,6 +205,13 @@ this.ckan.module('plot', function (jQuery, _) {
       if (!this.drawn && jQuery.contains(jQuery(event.target.hash)[0], this.canvas[0])) {
         this.draw();
       }
-    }
+    },
+
+    plotSwitch: function (event) {
+      var self = jQuery(this);
+      self.toggleClass('table-view plot-view')
+        .parent().toggleClass('table-view');
+    },
+
   };
 });
