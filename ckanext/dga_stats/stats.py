@@ -149,7 +149,7 @@ class Stats(object):
         connection = model.Session.connection()
 
         res = connection.execute("SELECT 'Total Organisations', count(*) from \"group\" where type = 'organization' and state = 'active' union \
-				select 'Total Datasets', count(*) from package where (package.state='active' or package.state='draft' or package.state='draft-complete') and private = 'f' and package.id not in (select package_id from package_extra where key = 'harvest_portal') union \
+				select 'Total Datasets', count(*) from package where package.type='dataset' and package.state='active' and package.private = 'f' and package.id not in (select package_id from package_extra where key = 'harvest_portal') union \
 				select 'Total Archived Datasets', count(*) from package where (state='active' or state='draft' or state='draft-complete') and private = 't' and package.id not in (select package_id from package_extra where key = 'harvest_portal') union \
 				select 'Total Data Files/Resources', count(*) from resource where state='active' union \
 				select 'Total Machine Readable/Data API Resources', count(*) from resource where state='active' and (webstore_url = 'active' or format='wms')").fetchall();
@@ -257,9 +257,8 @@ class RevisionStats(object):
             res = connection.execute(""
                                      "SELECT package_revision.id, min(revision.timestamp) AS min_1 FROM package_revision "
                                      "JOIN revision ON revision.id = package_revision.revision_id "
-                                     "JOIN package ON revision.id = package.revision_id "
-                                     "WHERE package.private = 'f' "
-                                     "and package.id not in (select package_id from package_extra where key = 'harvest_portal') "
+                                     "WHERE package_revision.type='dataset' and package_revision.state='active' "
+                                     "and package_revision.private = 'f' and package_revision.id not in (select package_id from package_extra where key = 'harvest_portal') "
                                      "GROUP BY package_revision.id ORDER BY min(revision.timestamp)")
             res_pickleable = []
             for pkg_id, created_datetime in res:
