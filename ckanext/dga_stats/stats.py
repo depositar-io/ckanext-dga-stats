@@ -284,16 +284,13 @@ class RevisionStats(object):
         def deleted_packages():
             # Can't filter by time in select because 'min' function has to
             # be 'for all time' else you get first revision in the time period.
-            package_revision = table('package_revision')
-            revision = table('revision')
-            package = table('package')
-            s = select([package_revision.c.id, func.min(revision.c.timestamp)],
-                       from_obj=[package_revision.join(revision).join(package)]). \
-                where(package_revision.c.state == model.State.DELETED). \
-                where(package.c.private == 'f'). \
-                group_by(package_revision.c.id). \
-                order_by(func.min(revision.c.timestamp))
-            res = model.Session.execute(s).fetchall()  # [(id, datetime), ...]
+            connection = model.Session.connection()
+            res = connection.execute(""
+                                     "SELECT package_revision.id, min(revision.timestamp) AS min_1 FROM package_revision "
+                                     "JOIN revision ON revision.id = package_revision.revision_id "
+                                     "WHERE package_revision.state='deleted' and package_revision.type='dataset'"
+                                     "and package_revision.private = 'f' and package_revision.id not in (select package_id from package_extra where key = 'harvest_portal') "
+                                     "GROUP BY package_revision.id ORDER BY min(revision.timestamp)")
             res_pickleable = []
             for pkg_id, deleted_datetime in res:
                 res_pickleable.append((pkg_id, deleted_datetime.toordinal()))
