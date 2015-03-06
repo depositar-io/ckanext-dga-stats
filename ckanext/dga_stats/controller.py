@@ -21,7 +21,6 @@ class StatsController(BaseController):
         c.user_access_list = stats.user_access_list()
         c.recent_datasets = stats.recent_datasets()
         c.new_packages_by_week = rev_stats.get_by_week('new_packages')
-        c.deleted_packages_by_week = rev_stats.get_by_week('deleted_packages')
         c.num_packages_by_week = rev_stats.get_num_packages_by_week()
         c.package_revisions_by_week = rev_stats.get_by_week('package_revisions')
 

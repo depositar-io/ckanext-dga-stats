@@ -257,8 +257,8 @@ class RevisionStats(object):
             res = connection.execute(""
                                      "SELECT package_revision.id, min(revision.timestamp) AS min_1 FROM package_revision "
                                      "JOIN revision ON revision.id = package_revision.revision_id "
-                                     "WHERE package_revision.type='dataset' and package_revision.state='active' "
-                                     "and package_revision.private = 'f' and package_revision.id not in (select package_id from package_extra where key = 'harvest_portal') "
+                                     "WHERE package_revision.id in (select id from package where package.type='dataset' and package.state='active' and package.private = 'f')"
+                                     "and package_revision.id not in (select package_id from package_extra where key = 'harvest_portal') "
                                      "GROUP BY package_revision.id ORDER BY min(revision.timestamp)")
             res_pickleable = []
             for pkg_id, created_datetime in res:
@@ -274,52 +274,21 @@ class RevisionStats(object):
             new_packages = new_packages()
         return new_packages
 
-    @classmethod
-    def get_deleted_packages(cls):
-        '''
-        @return: Returns list of deleted pkgs and date when they were deleted, in
-                 format: [(id, date_ordinal), ...]
-        '''
-
-        def deleted_packages():
-            # Can't filter by time in select because 'min' function has to
-            # be 'for all time' else you get first revision in the time period.
-            connection = model.Session.connection()
-            res = connection.execute(""
-                                     "SELECT package_revision.id, min(revision.timestamp) AS min_1 FROM package_revision "
-                                     "JOIN revision ON revision.id = package_revision.revision_id "
-                                     "WHERE package_revision.state='deleted' and package_revision.type='dataset'"
-                                     "and package_revision.private = 'f' and package_revision.id not in (select package_id from package_extra where key = 'harvest_portal') "
-                                     "GROUP BY package_revision.id ORDER BY min(revision.timestamp)")
-            res_pickleable = []
-            for pkg_id, deleted_datetime in res:
-                res_pickleable.append((pkg_id, deleted_datetime.toordinal()))
-            return res_pickleable
-
-        if cache_enabled:
-            week_commences = cls.get_date_week_started(datetime.date.today())
-            key = 'all_deleted_packages_%s' + week_commences.strftime(DATE_FORMAT)
-            deleted_packages = our_cache.get_value(key=key,
-                                                   createfunc=deleted_packages)
-        else:
-            deleted_packages = deleted_packages()
-        return deleted_packages
 
     @classmethod
     def get_num_packages_by_week(cls):
         def num_packages():
             new_packages_by_week = cls.get_by_week('new_packages')
-            deleted_packages_by_week = cls.get_by_week('deleted_packages')
-            first_date = (min(datetime.datetime.strptime(new_packages_by_week[0][0], DATE_FORMAT),
-                              datetime.datetime.strptime(deleted_packages_by_week[0][0], DATE_FORMAT))).date()
+
+            first_date = datetime.datetime.strptime(new_packages_by_week[0][0], DATE_FORMAT).date()
             cls._cumulative_num_pkgs = 0
             new_pkgs = []
-            deleted_pkgs = []
+
 
             def build_weekly_stats(week_commences, new_pkg_ids, deleted_pkg_ids):
-                num_pkgs = len(new_pkg_ids) - len(deleted_pkg_ids)
+                num_pkgs = len(new_pkg_ids)
                 new_pkgs.extend([model.Session.query(model.Package).get(id).name for id in new_pkg_ids])
-                deleted_pkgs.extend([model.Session.query(model.Package).get(id).name for id in deleted_pkg_ids])
+
                 cls._cumulative_num_pkgs += num_pkgs
                 return (week_commences.strftime(DATE_FORMAT),
                         num_pkgs, cls._cumulative_num_pkgs)
@@ -338,16 +307,10 @@ class RevisionStats(object):
                     new_package_week_index += 1
                 else:
                     new_pkg_ids = []
-                if datetime.datetime.strptime(deleted_packages_by_week[deleted_package_week_index][0],
-                                              DATE_FORMAT).date() == week_commences:
-                    deleted_pkg_ids = deleted_packages_by_week[deleted_package_week_index][1]
-                    deleted_package_week_index += 1
-                else:
-                    deleted_pkg_ids = []
-                weekly_numbers.append(build_weekly_stats(week_commences, new_pkg_ids, deleted_pkg_ids))
+
+                weekly_numbers.append(build_weekly_stats(week_commences, new_pkg_ids, []))
             # just check we got to the end of each count
             assert new_package_week_index == len(new_packages_by_week)
-            assert deleted_package_week_index == len(deleted_packages_by_week)
             return weekly_numbers
 
         if cache_enabled:
@@ -366,11 +329,6 @@ class RevisionStats(object):
         def objects_by_week():
             if cls._object_type == 'new_packages':
                 objects = cls.get_new_packages()
-
-                def get_date(object_date):
-                    return datetime.date.fromordinal(object_date)
-            elif cls._object_type == 'deleted_packages':
-                objects = cls.get_deleted_packages()
 
                 def get_date(object_date):
                     return datetime.date.fromordinal(object_date)
@@ -437,8 +395,6 @@ class RevisionStats(object):
         assert isinstance(date_week_commences, datetime.date)
         if type_ in ('package_addition_rate', 'new_packages'):
             object_type = 'new_packages'
-        elif type_ == 'deleted_packages':
-            object_type = 'deleted_packages'
         elif type_ == 'package_revision_rate':
             object_type = 'package_revisions'
         else:
