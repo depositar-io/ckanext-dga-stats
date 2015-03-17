@@ -189,10 +189,11 @@ class Stats(object):
         r = []
         for timestamp, package_id, user_id in result:
             package = model.Session.query(model.Package).get(unicode(package_id))
-            if package.owner_org:
-                r.append((datetime2date(timestamp), package, model.Session.query(model.Group).get(unicode(package.owner_org)), model.Session.query(model.User).get(unicode(user_id))))
-            else:
-                r.append((datetime2date(timestamp), package, None, model.Session.query(model.User).get(unicode(user_id))))
+	    if 'harvest_portal' not in package.extras:
+                if package.owner_org:
+                    r.append((datetime2date(timestamp), package, model.Session.query(model.Group).get(unicode(package.owner_org)), model.Session.query(model.User).get(unicode(user_id))))
+                else:
+                    r.append((datetime2date(timestamp), package, None, model.Session.query(model.User).get(unicode(user_id))))
         return r
 
     @classmethod
@@ -204,16 +205,18 @@ class Stats(object):
             package.c.private == 'f'). \
             where(activity.c.timestamp > func.now() - text("interval '60 day'")) \
             .where(activity.c.activity_type == 'changed package') \
+            .where(activity.c.user_id != 'custodian')\
             .group_by(package.c.id,activity.c.user_id).order_by(
             func.max(activity.c.timestamp))
         result = model.Session.execute(s).fetchall()
         r = []
         for timestamp, package_id, user_id in result:
             package = model.Session.query(model.Package).get(unicode(package_id))
-            if package.owner_org:
-                r.append((datetime2date(timestamp), package, model.Session.query(model.Group).get(unicode(package.owner_org)), model.Session.query(model.User).get(unicode(user_id))))
-            else:
-                r.append((datetime2date(timestamp), package, None, model.Session.query(model.User).get(unicode(user_id))))
+	    if 'harvest_portal' not in package.extras:
+                if package.owner_org:
+                    r.append((datetime2date(timestamp), package, model.Session.query(model.Group).get(unicode(package.owner_org)), model.Session.query(model.User).get(unicode(user_id))))
+                else:
+                    r.append((datetime2date(timestamp), package, None, model.Session.query(model.User).get(unicode(user_id))))
         return r
 
 class RevisionStats(object):
