@@ -167,23 +167,54 @@ class Stats(object):
     def user_access_list(cls):
         connection = model.Session.connection()
         res = connection.execute(
-            "select name,sysadmin,role from user_object_role right outer join \"user\" on user_object_role.user_id = \"user\".id where name not in ('logged_in','visitor') group by name,sysadmin,role order by sysadmin desc, role asc;").fetchall();
+            "select name,sysadmin,role,max(last_active) from user_object_role "
+            "right outer join \"user\" on user_object_role.user_id = \"user\".id "
+            "right OUTER JOIN (select max(timestamp) last_active,user_id from activity group by user_id) a on user_object_role.user_id = a.user_id "
+            "where name not in ('logged_in','visitor') "
+            "group by name,sysadmin,role order by sysadmin desc, role asc, name asc;").fetchall();
         return res
 
     @classmethod
-    def recent_datasets(cls):
+    def recent_created_datasets(cls):
         activity = table('activity')
         package = table('package')
-        s = select([func.max(activity.c.timestamp), package.c.id, activity.c.activity_type],
+        s = select([func.max(activity.c.timestamp), package.c.id, activity.c.user_id],
                    from_obj=[activity.join(package, activity.c.object_id == package.c.id)]).where(
             package.c.private == 'f'). \
-            where(activity.c.timestamp > func.now() - text("interval '60 day'")).group_by(package.c.id,
-                                                                                          activity.c.activity_type).order_by(
+            where(activity.c.timestamp > func.now() - text("interval '60 day'")) \
+            .where(activity.c.activity_type == 'new package')\
+            .group_by(package.c.id,activity.c.user_id).order_by(
             func.max(activity.c.timestamp))
         result = model.Session.execute(s).fetchall()
-        return [(datetime2date(timestamp), model.Session.query(model.Package).get(unicode(package_id)), activity_type)
-                for timestamp, package_id, activity_type in result]
+        r = []
+        for timestamp, package_id, user_id in result:
+            package = model.Session.query(model.Package).get(unicode(package_id))
+            if package.owner_org:
+                r.append((datetime2date(timestamp), package, model.Session.query(model.Group).get(unicode(package.owner_org)), model.Session.query(model.User).get(unicode(user_id))))
+            else:
+                r.append((datetime2date(timestamp), package, None, model.Session.query(model.User).get(unicode(user_id))))
+        return r
 
+    @classmethod
+    def recent_updated_datasets(cls):
+        activity = table('activity')
+        package = table('package')
+        s = select([func.max(activity.c.timestamp), package.c.id, activity.c.user_id],
+                   from_obj=[activity.join(package, activity.c.object_id == package.c.id)]).where(
+            package.c.private == 'f'). \
+            where(activity.c.timestamp > func.now() - text("interval '60 day'")) \
+            .where(activity.c.activity_type == 'changed package') \
+            .group_by(package.c.id,activity.c.user_id).order_by(
+            func.max(activity.c.timestamp))
+        result = model.Session.execute(s).fetchall()
+        r = []
+        for timestamp, package_id, user_id in result:
+            package = model.Session.query(model.Package).get(unicode(package_id))
+            if package.owner_org:
+                r.append((datetime2date(timestamp), package, model.Session.query(model.Group).get(unicode(package.owner_org)), model.Session.query(model.User).get(unicode(user_id))))
+            else:
+                r.append((datetime2date(timestamp), package, None, model.Session.query(model.User).get(unicode(user_id))))
+        return r
 
 class RevisionStats(object):
     @classmethod

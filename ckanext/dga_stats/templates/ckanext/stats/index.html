@@ -33,31 +33,60 @@
         <p class="empty">{{ _('No groups') }}</p>
       {% endif %}
     </section>
-    <section id="stats-recent-datasets" class="module-content tab-content">
-      <h2>{{ _('Recent Datasets') }}</h2>
-      {% if c.recent_datasets %}
+    <section id="stats-recent-created-datasets" class="module-content tab-content">
+      <h2>{{ _('Recent Created Datasets') }}</h2>
+      {% if c.recent_created_datasets %}
         <table class="table table-chunky table-bordered table-striped">
           <thead>
             <tr>
               <th>{{ _('Date') }}</th>
-              <th>{{ _('Dataset') }}</th>
-              <th>{{ _('New/Modified') }}</th>
+              <th>{{ _('Dataset Name') }}</th>
+              <th>{{ _('User') }}</th>
+              <th>{{ _('Organization') }}</th>
             </tr>
           </thead>
           <tbody>
-            {% for date,package,newmodified in c.recent_datasets %}
-              <tr>
-                <td>{{ date }}</td>
-                <td>{{ h.link_to(package.title or package.name, h.url_for(controller='package', action='read', id=package.name)) }}</td>
-                <td>{{ newmodified }}</td>
+          {% for date,package,group,user in c.recent_created_datasets %}
+          <tr>
+              <td>{{ date }}</td>
+              <td>{{ h.link_to(package.title or package.name, h.url_for(controller='package', action='read', id=package.name)) }}</td>
+              <td>{{ h.link_to(user.display_name or user.name, h.url_for(controller='user', action='read', id=user.name)) }}</td>
+              <td>{{h.link_to(group.title or group.name, h.url_for(controller='organization', action='read', id=group.name)) }}</td>
               </tr>
             {% endfor %}
           </tbody>
         </table>
       {% else %}
-        <p class="empty">{{ _('No groups') }}</p>
+        <p class="empty">{{ _('No created datasets') }}</p>
       {% endif %}
     </section>
+      <section id="stats-recent-updated-datasets" class="module-content tab-content">
+          <h2>{{ _('Recent Updated Datasets') }}</h2>
+          {% if c.recent_updated_datasets %}
+          <table class="table table-chunky table-bordered table-striped">
+              <thead>
+              <tr>
+                  <th>{{ _('Date') }}</th>
+                  <th>{{ _('Dataset Name') }}</th>
+                  <th>{{ _('User') }}</th>
+                  <th>{{ _('Organization') }}</th>
+              </tr>
+              </thead>
+              <tbody>
+              {% for date,package,group,user in c.recent_updated_datasets %}
+              <tr>
+                  <td>{{ date }}</td>
+                  <td>{{ h.link_to(package.title or package.name, h.url_for(controller='package', action='read', id=package.name)) }}</td>
+                  <td>{{ h.link_to(user.display_name or user.name, h.url_for(controller='user', action='read', id=user.name)) }}</td>
+                  <td>{{h.link_to(group.title or group.name, h.url_for(controller='organization', action='read', id=group.name)) }}</td>
+              </tr>
+              {% endfor %}
+              </tbody>
+          </table>
+          {% else %}
+          <p class="empty">{{ _('No created datasets') }}</p>
+          {% endif %}
+      </section>
     <section id="stats-user-access-list" class="module-content tab-content">
       <h2>{{ _('User Access List') }}</h2>
       {% if c.user_access_list %}
@@ -67,14 +96,16 @@
               <th>{{ _('Username') }}</th>
               <th>{{ _('Sysadmin') }}</th>
               <th class="metric">{{ _('Organisational Role') }}</th>
+                <th class="metric">Last Activity</th>
             </tr>
           </thead>
           <tbody>
-            {% for username,sysadmin,role in c.user_access_list %}
+            {% for username,sysadmin,role,last_activity in c.user_access_list %}
               <tr>
                 <td>{{ username }}</td>
                 <td>{{ sysadmin }}</td>
                 <td>{{ role }}</td>
+                  <td>{{ last_activity }}</td>
               </tr>
             {% endfor %}
           </tbody>
@@ -97,7 +128,7 @@
           </tr>
         </thead>
         <tbody>
-          {% for row in c.raw_packages_by_week %}
+          {% for row in c.raw_packages_by_week|reverse() %}
             <tr>
               <th data-type="date" data-value="{{ row.date.strftime("%s") }}"><time datetime="{{ row.date.isoformat() }}">{{ h.render_datetime(row.date) }}</time></th>
               <td>{{ row.total_packages }}</td>
@@ -121,7 +152,7 @@
           </tr>
         </thead>
         <tbody>
-          {% for row in c.raw_all_package_revisions %}
+          {% for row in c.raw_all_package_revisions|reverse() %}
             <tr>
               <th data-type="date" data-value="{{ row.date.strftime("%s") }}"><time datetime="{{ row.date.isoformat() }}">{{ h.render_datetime(row.date) }}</time></th>
               <td>{{ row.total_revisions }}</td>
@@ -296,8 +327,9 @@
     <h2 class="module-heading"><i class="icon-bar-chart icon-medium"></i> {{ _('Statistics Menu') }}</h2>
     <nav data-module="stats-nav">
       <ul class="unstyled nav nav-simple">
+          <li class="nav-item"><a href="#stats-recent-created-datasets" data-toggle="tab">{{ _('Recent Created Datasets') }}</a></li>
+          <li class="nav-item"><a href="#stats-recent-updated-datasets" data-toggle="tab">{{ _('Recent Updated Datasets') }}</a></li>
 {% if h.check_access('sysadmin') %}
-        <li class="nav-item"><a href="#stats-recent-datasets" data-toggle="tab">{{ _('Recent Datasets') }}</a></li>
         <li class="nav-item"><a href="#stats-user-access-list" data-toggle="tab">{{ _('User Access List') }}</a></li>
 {% endif %}
         <li class="nav-item"><a href="#stats-total-datasets" data-toggle="tab">{{ _('Total Number of Datasets') }}</a></li>
@@ -306,7 +338,7 @@
         <li class="nav-item"><a href="#stats-by-org" data-toggle="tab">{{ _('Datasets by Organization') }}</a></li> 
         <li class="nav-item"><a href="#stats-res-by-org" data-toggle="tab">{{ _('Resources by Organization') }}</a></li> 
         <li class="nav-item"><a href="#stats-activity-org" data-toggle="tab">{{ _('Most Active Organisations') }}</a></li>
-        <li class="nav-item"><a href="//data.gov.au/site-usage">Site Analytics</a></li>
+        <li class="nav-item"><a href="/site-usage">Site Analytics</a></li>
         <li class="nav-item active"><a href="#stats-summary" data-toggle="tab">{{ _('Summary') }}</a></li> 
       </ul>
     </nav>
