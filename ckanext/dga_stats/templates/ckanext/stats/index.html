@@ -7,32 +7,7 @@
 
 {% block primary_content %}
   <article class="module">
-{% if h.check_access('sysadmin') %}
-    <section id="stats-activity-counts" class="module-content tab-content">
-      <h2>{{ _('Site Activity Log') }}</h2>
-      {% if c.activity_counts %}
-        <table class="table table-chunky table-bordered table-striped">
-          <thead>
-            <tr>
-              <th>{{ _('Month') }}</th>
-              <th>{{ _('Activity Type') }}</th>
-              <th class="metric">{{ _('Count') }}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for month, type, count in c.activity_counts %}
-              <tr>
-                <td>{{ month }}</td>
-                <td>{{ type }}</td>
-                <td class="metric">{{ count }}</td>
-              </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      {% else %}
-        <p class="empty">{{ _('No groups') }}</p>
-      {% endif %}
-    </section>
+
     <section id="stats-recent-created-datasets" class="module-content tab-content">
       <h2>{{ _('Recent Created Datasets') }}</h2>
       {% if c.recent_created_datasets %}
@@ -85,6 +60,32 @@
           </table>
           {% else %}
           <p class="empty">{{ _('No created datasets') }}</p>
+          {% endif %}
+      </section>
+      {% if h.check_access('sysadmin') %}
+      <section id="stats-activity-log" class="module-content tab-content">
+          <h2>{{ _('Site Activity Log') }}</h2>
+          {% if c.activity_counts %}
+          <table class="table table-chunky table-bordered table-striped">
+              <thead>
+              <tr>
+                  <th>{{ _('Month') }}</th>
+                  <th>{{ _('Activity Type') }}</th>
+                  <th class="metric">{{ _('Count') }}</th>
+              </tr>
+              </thead>
+              <tbody>
+              {% for month, type, count in c.activity_counts %}
+              <tr>
+                  <td>{{ month }}</td>
+                  <td>{{ type }}</td>
+                  <td class="metric">{{ count }}</td>
+              </tr>
+              {% endfor %}
+              </tbody>
+          </table>
+          {% else %}
+          <p class="empty">{{ _('No groups') }}</p>
           {% endif %}
       </section>
     <section id="stats-user-access-list" class="module-content tab-content">
@@ -330,6 +331,7 @@
           <li class="nav-item"><a href="#stats-recent-created-datasets" data-toggle="tab">{{ _('Recent Created Datasets') }}</a></li>
           <li class="nav-item"><a href="#stats-recent-updated-datasets" data-toggle="tab">{{ _('Recent Updated Datasets') }}</a></li>
 {% if h.check_access('sysadmin') %}
+          <li class="nav-item"><a href="#stats-site-activity-log" data-toggle="tab">{{ _('Site Activity Log') }}</a></li>
         <li class="nav-item"><a href="#stats-user-access-list" data-toggle="tab">{{ _('User Access List') }}</a></li>
 {% endif %}
         <li class="nav-item"><a href="#stats-total-datasets" data-toggle="tab">{{ _('Total Number of Datasets') }}</a></li>
