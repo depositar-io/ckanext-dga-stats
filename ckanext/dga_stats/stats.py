@@ -167,12 +167,13 @@ class Stats(object):
     def user_access_list(cls):
         connection = model.Session.connection()
         res = connection.execute(
-            "select name,sysadmin,role,max(last_active) from user_object_role "
+            "select \"user\".id ,sysadmin,role,max(last_active) from user_object_role "
             "right outer join \"user\" on user_object_role.user_id = \"user\".id "
             "right OUTER JOIN (select max(timestamp) last_active,user_id from activity group by user_id) a on user_object_role.user_id = a.user_id "
             "where name not in ('logged_in','visitor') "
-            "group by name,sysadmin,role order by sysadmin desc, role asc, name asc;").fetchall();
-        return res
+            "group by \"user\".id ,sysadmin,role order by sysadmin desc, role asc, name asc;").fetchall();
+        result = [(model.Session.query(model.User).get(unicode(user_id)), sysadmin, role, last_active) for (user_id, sysadmin, role, last_active) in res]
+        return result
 
     @classmethod
     def recent_created_datasets(cls):
