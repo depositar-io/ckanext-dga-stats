@@ -115,7 +115,7 @@
       {% endif %}
     </section>
 {% endif %}
-    <section id="stats-total-datasets" class="module-content tab-content active">
+    <section id="stats-total-datasets" class="module-content tab-content">
       <h2>{{ _('Total number of Datasets') }}</h2>
 
       {% set xaxis = {'mode': 'time', 'timeformat': '%y-%b'} %}
@@ -294,7 +294,7 @@
         <p class="empty">{{ _('No groups') }}</p>
       {% endif %}
     </section>
-    <section id="stats-summary" class="module-content tab-content">
+    <section id="stats-summary" class="module-content tab-content active">
       <h2>{{ _('Summary') }}</h2>
       {% if c.summary_stats %}
         <table class="table table-chunky table-bordered table-striped">
