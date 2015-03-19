@@ -171,7 +171,7 @@ class Stats(object):
             "right outer join \"user\" on user_object_role.user_id = \"user\".id "
             "right OUTER JOIN (select max(timestamp) last_active,user_id from activity group by user_id) a on user_object_role.user_id = a.user_id "
             "where name not in ('logged_in','visitor') "
-            "group by \"user\".id ,sysadmin,role order by sysadmin desc, role asc, max(last_active) desc;").fetchall();
+            "group by \"user\".id ,sysadmin,role order by sysadmin desc, role asc, max(last_active) desc;").fetchall()
         result = [(model.Session.query(model.User).get(unicode(user_id)), sysadmin, role, last_active) for
                   (user_id, sysadmin, role, last_active) in res]
         return result
@@ -184,7 +184,7 @@ class Stats(object):
                                     "FULL OUTER JOIN (select package_id,key from package_extra "
                                     "where key = 'harvest_portal') e on e.package_id=package_revision.id "
                                     "where key is null and activity_type = 'new package' "
-                                    "and revision_timestamp > NOW() - interval '60 day';").fetchall()
+                                    "and revision_timestamp > NOW() - interval '60 day' order by timestamp desc;").fetchall()
         r = []
         for timestamp, package_id, user_id in result:
             package = model.Session.query(model.Package).get(unicode(package_id))
@@ -199,28 +199,25 @@ class Stats(object):
 
     @classmethod
     def recent_updated_datasets(cls):
-        activity = table('activity')
-        package = table('package')
-        s = select([func.max(activity.c.timestamp), package.c.id, activity.c.user_id],
-                   from_obj=[activity.join(package, activity.c.object_id == package.c.id)]).where(
-            package.c.private == 'f'). \
-            where(activity.c.timestamp > func.now() - text("interval '60 day'")) \
-            .where(activity.c.activity_type == 'changed package') \
-            .where(activity.c.user_id != 'custodian') \
-            .group_by(package.c.id, activity.c.user_id).order_by(
-            func.max(activity.c.timestamp))
-        result = model.Session.execute(s).fetchall()
+        connection = model.Session.connection()
+        result = connection.execute("select timestamp,package_revision.id,user_id from package_revision "
+                                    "inner join activity on activity.object_id=package_revision.id "
+                                    "FULL OUTER JOIN (select package_id,key from package_extra "
+                                    "where key = 'harvest_portal') e on e.package_id=package_revision.id "
+                                    "where key is null and activity_type = 'changed package' "
+                                    "and revision_timestamp > NOW() - interval '60 day' "
+                                    "GROUP BY package_revision.id,user_id,timestamp,activity_type,date_part('doy',timestamp) "
+                                    "order by date_part('doy',timestamp) desc ;").fetchall()
         r = []
         for timestamp, package_id, user_id in result:
             package = model.Session.query(model.Package).get(unicode(package_id))
-            if 'harvest_portal' not in package.extras:
-                if package.owner_org:
-                    r.append((
+            if package.owner_org:
+                r.append((
                     datetime2date(timestamp), package, model.Session.query(model.Group).get(unicode(package.owner_org)),
                     model.Session.query(model.User).get(unicode(user_id))))
-                else:
-                    r.append((
-                    datetime2date(timestamp), package, None, model.Session.query(model.User).get(unicode(user_id))))
+            else:
+                r.append(
+                    (datetime2date(timestamp), package, None, model.Session.query(model.User).get(unicode(user_id))))
         return r
 
 
