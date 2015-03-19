@@ -179,12 +179,12 @@ class Stats(object):
     @classmethod
     def recent_created_datasets(cls):
         connection = model.Session.connection()
-        result = connection.execute("select timestamp,package_revision.id,user_id from package_revision "
-                                    "inner join activity on activity.object_id=package_revision.id "
+        result = connection.execute("select timestamp,package.id,user_id from package "
+                                    "inner join activity on activity.object_id=package.id "
                                     "FULL OUTER JOIN (select package_id,key from package_extra "
-                                    "where key = 'harvest_portal') e on e.package_id=package_revision.id "
+                                    "where key = 'harvest_portal') e on e.package_id=package.id "
                                     "where key is null and activity_type = 'new package' "
-                                    "and revision_timestamp > NOW() - interval '60 day' order by timestamp desc;").fetchall()
+                                    "and timestamp > NOW() - interval '60 day' order by timestamp asc;").fetchall()
         r = []
         for timestamp, package_id, user_id in result:
             package = model.Session.query(model.Package).get(unicode(package_id))
@@ -200,14 +200,14 @@ class Stats(object):
     @classmethod
     def recent_updated_datasets(cls):
         connection = model.Session.connection()
-        result = connection.execute("select timestamp,package_revision.id,user_id from package_revision "
-                                    "inner join activity on activity.object_id=package_revision.id "
+        result = connection.execute("select timestamp,package.id,user_id from package "
+                                    "inner join activity on activity.object_id=package.id "
                                     "FULL OUTER JOIN (select package_id,key from package_extra "
-                                    "where key = 'harvest_portal') e on e.package_id=package_revision.id "
+                                    "where key = 'harvest_portal') e on e.package_id=package.id "
                                     "where key is null and activity_type = 'changed package' "
-                                    "and revision_timestamp > NOW() - interval '60 day' "
-                                    "GROUP BY package_revision.id,user_id,timestamp,activity_type,date_part('doy',timestamp) "
-                                    "order by date_part('doy',timestamp) desc ;").fetchall()
+                                    "and timestamp > NOW() - interval '60 day' "
+                                    "GROUP BY package.id,user_id,timestamp,activity_type,date_part('doy',timestamp) "
+                                    "order by timestamp asc ;").fetchall()
         r = []
         for timestamp, package_id, user_id in result:
             package = model.Session.query(model.Package).get(unicode(package_id))
