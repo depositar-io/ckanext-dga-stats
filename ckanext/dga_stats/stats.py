@@ -171,7 +171,7 @@ class Stats(object):
             "right outer join \"user\" on user_object_role.user_id = \"user\".id "
             "right OUTER JOIN (select max(timestamp) last_active,user_id from activity group by user_id) a on user_object_role.user_id = a.user_id "
             "where name not in ('logged_in','visitor') "
-            "group by \"user\".id ,sysadmin,role order by sysadmin desc, role asc, max(last_active) desc;").fetchall()
+            "group by \"user\".id ,sysadmin,role order by max(last_active) desc;").fetchall()
         result = [(model.Session.query(model.User).get(unicode(user_id)), sysadmin, role, last_active) for
                   (user_id, sysadmin, role, last_active) in res]
         return result
@@ -200,24 +200,23 @@ class Stats(object):
     @classmethod
     def recent_updated_datasets(cls):
         connection = model.Session.connection()
-        result = connection.execute("select timestamp,package.id,user_id from package "
+        result = connection.execute("select timestamp::date,package.id,user_id from package "
                                     "inner join activity on activity.object_id=package.id "
                                     "FULL OUTER JOIN (select package_id,key from package_extra "
                                     "where key = 'harvest_portal') e on e.package_id=package.id "
                                     "where key is null and activity_type = 'changed package' "
                                     "and timestamp > NOW() - interval '60 day' "
-                                    "GROUP BY package.id,user_id,timestamp,activity_type,date_part('doy',timestamp) "
-                                    "order by timestamp asc ;").fetchall()
+                                    "GROUP BY package.id,user_id,timestamp::date,activity_type "
+                                    "order by timestamp::date asc ;").fetchall()
         r = []
         for timestamp, package_id, user_id in result:
             package = model.Session.query(model.Package).get(unicode(package_id))
             if package.owner_org:
-                r.append((
-                    datetime2date(timestamp), package, model.Session.query(model.Group).get(unicode(package.owner_org)),
+                r.append((timestamp, package, model.Session.query(model.Group).get(unicode(package.owner_org)),
                     model.Session.query(model.User).get(unicode(user_id))))
             else:
                 r.append(
-                    (datetime2date(timestamp), package, None, model.Session.query(model.User).get(unicode(user_id))))
+                    (timestamp, package, None, model.Session.query(model.User).get(unicode(user_id))))
         return r
 
 
