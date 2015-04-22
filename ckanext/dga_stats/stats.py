@@ -171,7 +171,7 @@ class Stats(object):
             " left outer join member on member.table_id = \"user\".id "\
             " left OUTER JOIN (select max(timestamp) last_active,user_id from activity group by user_id) a on \"user\".id = a.user_id "\
             " left outer join \"group\" on member.group_id = \"group\".id  where sysadmin = 't' or capacity is not null"\
-            " group by \"user\".id ,sysadmin,capacity order by capacity desc, sysadmin desc;").fetchall()
+            " group by \"user\".id ,sysadmin,capacity order by max(last_active) desc;").fetchall()
         result = [(model.Session.query(model.User).get(unicode(user_id)), sysadmin, role, last_active, orgs) for
                   (user_id, sysadmin, role, last_active, orgs) in res]
         return result
