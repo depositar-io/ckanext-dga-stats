@@ -167,13 +167,13 @@ class Stats(object):
     def user_access_list(cls):
         connection = model.Session.connection()
         res = connection.execute(
-            "select \"user\".id ,sysadmin,role,max(last_active) from user_object_role "
-            "right outer join \"user\" on user_object_role.user_id = \"user\".id "
-            "right OUTER JOIN (select max(timestamp) last_active,user_id from activity group by user_id) a on user_object_role.user_id = a.user_id "
-            "where name not in ('logged_in','visitor') "
-            "group by \"user\".id ,sysadmin,role order by max(last_active) desc;").fetchall()
-        result = [(model.Session.query(model.User).get(unicode(user_id)), sysadmin, role, last_active) for
-                  (user_id, sysadmin, role, last_active) in res]
+            "select \"user\".id ,sysadmin,capacity,max(last_active),array_agg(\"group\".name) member_of_orgs from \"user\" "
+            " left outer join member on member.table_id = \"user\".id "\
+            " left OUTER JOIN (select max(timestamp) last_active,user_id from activity group by user_id) a on \"user\".id = a.user_id "\
+            " left outer join \"group\" on member.group_id = \"group\".id  where sysadmin = 't' or capacity is not null"\
+            " group by \"user\".id ,sysadmin,capacity order by capacity desc, sysadmin desc;").fetchall()
+        result = [(model.Session.query(model.User).get(unicode(user_id)), sysadmin, role, last_active, orgs) for
+                  (user_id, sysadmin, role, last_active, orgs) in res]
         return result
 
     @classmethod

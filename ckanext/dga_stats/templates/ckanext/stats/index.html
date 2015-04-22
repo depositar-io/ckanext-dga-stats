@@ -78,12 +78,12 @@
             </tr>
           </thead>
           <tbody>
-            {% for user,sysadmin,role,last_activity in c.user_access_list %}
+            {% for user,sysadmin,role,last_activity,orgs in c.user_access_list %}
             {% if year == last_activity.year %}
               <tr>
                 <td>{{ h.link_to(user.display_name or user.name, h.url_for(controller='user', action='read', id=user.name)) }}</td>
                 <td>{{ sysadmin }}</td>
-                <td>{{ role }}</td>
+                <td>{{ role }}<br/>{{ orgs }}</td>
                   <td>{{ last_activity }}</td>
               </tr>
             {% endif %}
