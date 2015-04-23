@@ -204,6 +204,6 @@ this.ckan.module('plot', function (jQuery, _) {
       if (!this.drawn && jQuery.contains(jQuery(event.target.hash)[0], this.canvas[0])) {
         this.draw();
       }
-    },
+    }
   };
 });
