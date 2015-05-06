@@ -63,38 +63,67 @@
           {% endif %}
       </section>
       {% if h.check_access('sysadmin') %}
-    <section id="stats-user-access-list" class="module-content tab-content">
-      <h2>{{ _('User Access List') }}</h2>
-      {% if c.user_access_list %}
-        {% for year in h.date_range() %}
-        <h3>{{ year }}</h3>
-        <table class="table table-chunky table-bordered table-striped">
-          <thead>
-            <tr>
-              <th>{{ _('Username') }}</th>
-              <th>{{ _('Sysadmin') }}</th>
-              <th class="metric">{{ _('Organisational Role') }}</th>
-                <th class="metric">Last Activity</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for user,sysadmin,role,last_activity,orgs in c.user_access_list %}
-            {% if year == last_activity.year %}
+      <section id="stats-user-access-list" class="module-content tab-content">
+          <h2>{{ _('User Access List') }}</h2>
+          {% if c.user_access_list %}
+          {% for year in h.date_range() %}
+          <h3>{{ year }}</h3>
+          <table class="table table-chunky table-bordered table-striped">
+              <thead>
               <tr>
-                <td>{{ h.link_to(user.display_name or user.name, h.url_for(controller='user', action='read', id=user.name)) }}</td>
-                <td>{{ sysadmin }}</td>
-                <td>{{ role }}<br/>{{ orgs }}</td>
+                  <th>{{ _('Username') }}</th>
+                  <th>{{ _('Sysadmin') }}</th>
+                  <th class="metric">{{ _('Organisational Role') }}</th>
+                  <th class="metric">Last Activity</th>
+              </tr>
+              </thead>
+              <tbody>
+              {% for user,sysadmin,role,last_activity,orgs in c.user_access_list %}
+              {% if year == last_activity.year %}
+              <tr>
+                  <td>{{ h.link_to(user.display_name or user.name, h.url_for(controller='user', action='read', id=user.name)) }}</td>
+                  <td>{{ sysadmin }}</td>
+                  <td>{{ role }}<br/>{{ orgs }}</td>
                   <td>{{ last_activity }}</td>
               </tr>
-            {% endif %}
-            {% endfor %}
+              {% endif %}
+              {% endfor %}
+              </tbody>
+          </table>
+          {% endfor %}
+          {% else %}
+          <p class="empty">{{ _('No groups') }}</p>
+          {% endif %}
+      </section>
+      <section id="stats-users-by-organisation" class="module-content tab-content">
+      <h2>{{ _('Users by Organisation') }}</h2>
+      {% if c.users_by_organisation %}
+      <table class="table table-chunky table-bordered table-striped">
+          <thead>
+          <tr>
+              <th>{{ _('Organisation') }}</th>
+              <th>{{ _('User') }}</th>
+              <th>{{ _('User Login') }}</th>
+              <th>{{ _('User Email') }}</th>
+              <th class="metric">{{ _('Organisational Role') }}</th>
+          </tr>
+          </thead>
+          <tbody>
+          {% for org,user,role in c.users_by_organisation %}
+          <tr>
+              <td>{{ h.link_to(org.title, h.url_for(controller='organization', action='read', id=org.name)) }}</td>
+              <td>{{ h.link_to(user.display_name or user.name, h.url_for(controller='user', action='read', id=user.name)) }}</td>
+              <td>{{ h.link_to(user.name, h.url_for(controller='user', action='read', id=user.name)) }}</td>
+              <td>{{ h.link_to(user.email, h.url_for(controller='user', action='read', id=user.name)) }}</td>
+              <td>{{ role }}<br/></td>
+          </tr>
+          {% endfor %}
           </tbody>
-        </table>
-        {% endfor %}
+      </table>
       {% else %}
-        <p class="empty">{{ _('No groups') }}</p>
+      <p class="empty">{{ _('No groups') }}</p>
       {% endif %}
-    </section>
+  </section>
 {% endif %}
     <section id="stats-total-datasets" class="module-content tab-content">
       <h2>{{ _('Total number of Datasets') }}</h2>
@@ -312,6 +341,7 @@
           <li class="nav-item"><a href="#stats-recent-updated-datasets" data-toggle="tab">{{ _('Recent Updated Datasets') }}</a></li>
 {% if h.check_access('sysadmin') %}
         <li class="nav-item"><a href="#stats-user-access-list" data-toggle="tab">{{ _('User Access List') }}</a></li>
+          <li class="nav-item"><a href="#stats-users-by-organisation" data-toggle="tab">{{ _('Users By Organisation') }}</a></li>
 {% endif %}
         <li class="nav-item"><a href="#stats-total-datasets" data-toggle="tab">{{ _('Total Number of Datasets') }}</a></li>
         <li class="nav-item"><a href="#stats-dataset-revisions" data-toggle="tab">{{ _('Dataset Revisions per Week') }}</a></li>

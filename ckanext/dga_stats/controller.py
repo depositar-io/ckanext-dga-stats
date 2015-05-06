@@ -30,6 +30,7 @@ class StatsController(BaseController):
         c.summary_stats = self.timed(stats.summary_stats)
         c.activity_counts = self.timed(stats.activity_counts)
         c.by_org = self.timed(stats.by_org)
+        c.users_by_organisation = self.timed(stats.users_by_organisation)
         c.res_by_org = self.timed(stats.res_by_org)
         c.top_active_orgs = self.timed(stats.top_active_orgs)
         c.user_access_list = self.timed(stats.user_access_list)
