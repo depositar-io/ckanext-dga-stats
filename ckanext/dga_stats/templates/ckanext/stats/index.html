@@ -2,7 +2,7 @@
 
 {% block subtitle %}{{ _("Site Statistics") }}{% endblock %}
 {% block breadcrumb_content %}
-  <li class="active"><h3>{{ 'Statistics' }}<h3></li>
+  <li class="active"><h3>{{ 'Statistics' }}</h3></li>
 {% endblock %}
 
 {% block primary_content %}
@@ -16,7 +16,9 @@
             <tr>
               <th>{{ _('Date') }}</th>
               <th>{{ _('Dataset Name') }}</th>
+ {% if h.check_access('sysadmin') %}
               <th>{{ _('User') }}</th>
+ {% endif %}
               <th>{{ _('Organization') }}</th>
             </tr>
           </thead>
@@ -25,7 +27,10 @@
           <tr>
               <td>{{ date }}</td>
               <td>{{ h.link_to(package.title or package.name, h.url_for(controller='package', action='read', id=package.name)) }}</td>
-              <td>{{ h.link_to(user.display_name or user.name, h.url_for(controller='user', action='read', id=user.name)) }}</td>
+ {% if h.check_access('sysadmin') %}
+              <td>{{ h.link_to(user.display_name or user.name, h.url_for(controller='user', action='read', id=user.name)) }}<br/>{{user.email}}</td>
+ {% endif %}
+
               <td>{{h.link_to(group.title or group.name, h.url_for(controller='organization', action='read', id=group.name)) }}</td>
               </tr>
             {% endfor %}
@@ -43,7 +48,9 @@
               <tr>
                   <th>{{ _('Date') }}</th>
                   <th>{{ _('Dataset Name') }}</th>
+ {% if h.check_access('sysadmin') %}
                   <th>{{ _('User') }}</th>
+ {% endif %}
                   <th>{{ _('Organization') }}</th>
               </tr>
               </thead>
@@ -52,7 +59,9 @@
               <tr>
                   <td>{{ date }}</td>
                   <td>{{ h.link_to(package.title or package.name, h.url_for(controller='package', action='read', id=package.name)) }}</td>
-                  <td>{{ h.link_to(user.display_name or user.name, h.url_for(controller='user', action='read', id=user.name)) }}</td>
+ {% if h.check_access('sysadmin') %}
+              <td>{{ h.link_to(user.display_name or user.name, h.url_for(controller='user', action='read', id=user.name)) }}<br/>{{user.email}}</td>
+ {% endif %}
                   <td>{{h.link_to(group.title or group.name, h.url_for(controller='organization', action='read', id=group.name)) }}</td>
               </tr>
               {% endfor %}
@@ -78,16 +87,26 @@
               </tr>
               </thead>
               <tbody>
-              {% for user,sysadmin,role,last_activity,orgs in c.user_access_list %}
-              {% if year == last_activity.year %}
+
+            {% for user,sysadmin,role,last_activity,orgs in c.user_access_list %}
+            {% if year == last_activity.year %}
               <tr>
-                  <td>{{ h.link_to(user.display_name or user.name, h.url_for(controller='user', action='read', id=user.name)) }}</td>
-                  <td>{{ sysadmin }}</td>
-                  <td>{{ role }}<br/>{{ orgs }}</td>
+                <td>{{ h.link_to(user.display_name or user.name, h.url_for(controller='user', action='read', id=user.name)) }}
+
+		</td>
+                <td>{{ sysadmin }}</td>
+                <td>{{ role }}<br/>
+{% if orgs[0] %}
+{% for org in orgs %}
+{{ h.link_to(org, h.url_for(controller='organization', action='read', id=org))  }}
+{% endfor %}
+{% endif %}
+</td>
                   <td>{{ last_activity }}</td>
               </tr>
-              {% endif %}
-              {% endfor %}
+            {% endif %}
+            {% endfor %}
+
               </tbody>
           </table>
           {% endfor %}
