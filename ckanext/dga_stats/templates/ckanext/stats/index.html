@@ -117,24 +117,44 @@
       <section id="stats-users-by-organisation" class="module-content tab-content">
       <h2>{{ _('Users by Organisation') }}</h2>
       {% if c.users_by_organisation %}
+          {%set sysadmins = False %}
       <table class="table table-chunky table-bordered table-striped">
           <thead>
           <tr>
-              <th>{{ _('Organisation') }}</th>
+              <th class="metric">{{ _('Organisation') }}</th>
               <th>{{ _('User') }}</th>
               <th>{{ _('User Login') }}</th>
               <th>{{ _('User Email') }}</th>
-              <th class="metric">{{ _('Organisational Role') }}</th>
+              <th>{{ _('Role') }}</th>
+              <th>Sysadmin</th>
           </tr>
           </thead>
           <tbody>
-          {% for org,user,role in c.users_by_organisation %}
+          {% for org,user,role,sysadmin in c.users_by_organisation %}
+          {% if not sysadmins and sysadmin %}
+          {%set sysadmins = True %}
+          </tbody>
+      </table>
+          <table class="table table-chunky table-bordered table-striped">
+              <thead>
+              <tr>
+                  <th class="metric">{{ _('Organisation') }}</th>
+                  <th>{{ _('User') }}</th>
+                  <th>{{ _('User Login') }}</th>
+                  <th>{{ _('User Email') }}</th>
+                  <th>{{ _('Role') }}</th>
+                  <th>Sysadmin</th>
+              </tr>
+              </thead>
+              <tbody>
+          {% endif %}
           <tr>
               <td>{{ h.link_to(org.title, h.url_for(controller='organization', action='read', id=org.name)) }}</td>
               <td>{{ h.link_to(user.display_name or user.name, h.url_for(controller='user', action='read', id=user.name)) }}</td>
               <td>{{ h.link_to(user.name, h.url_for(controller='user', action='read', id=user.name)) }}</td>
               <td>{{ h.link_to(user.email, h.url_for(controller='user', action='read', id=user.name)) }}</td>
               <td>{{ role }}<br/></td>
+              <td>{{ sysadmin }}<br/></td>
           </tr>
           {% endfor %}
           </tbody>

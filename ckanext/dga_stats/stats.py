@@ -167,12 +167,12 @@ class Stats(object):
     def users_by_organisation(cls):
         connection = model.Session.connection()
         res = connection.execute(
-            "select \"group\".id,\"user\".id ,capacity from \"group\""
+            "select \"group\".id,\"user\".id ,capacity, sysadmin from \"group\""
             "        inner join member on member.group_id = \"group\".id"
             "        inner join \"user\" on member.table_id = \"user\".id"
-            "        where capacity is not null and \"group\".type = 'organization' order by \"group\".name, capacity;").fetchall()
-        result = [(model.Session.query(model.Group).get(unicode(org)), model.Session.query(model.User).get(unicode(user_id)), role ) for
-                  (org, user_id, role) in res]
+            "        where capacity is not null and \"group\".type = 'organization' order by sysadmin, \"group\".name, capacity;").fetchall()
+        result = [(model.Session.query(model.Group).get(unicode(org)), model.Session.query(model.User).get(unicode(user_id)), role, sysadmin ) for
+                  (org, user_id, role, sysadmin) in res]
         return result
 
     @classmethod
