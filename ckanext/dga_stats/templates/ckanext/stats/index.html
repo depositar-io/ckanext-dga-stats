@@ -9,7 +9,7 @@
   <article class="module">
 
     <section id="stats-recent-created-datasets" class="module-content tab-content">
-      <h2>{{ _('Recent Created Datasets') }}</h2>
+      <h2>{{ _('Recently Created Datasets') }}</h2>
       {% if c.recent_created_datasets %}
         <table class="table table-chunky table-bordered table-striped">
           <thead>
@@ -41,7 +41,7 @@
       {% endif %}
     </section>
       <section id="stats-recent-updated-datasets" class="module-content tab-content">
-          <h2>{{ _('Recent Updated Datasets') }}</h2>
+          <h2>{{ _('Recently Updated Datasets') }}</h2>
           {% if c.recent_updated_datasets %}
           <table class="table table-chunky table-bordered table-striped">
               <thead>
@@ -376,8 +376,8 @@
     <h2 class="module-heading"><i class="icon-bar-chart icon-medium"></i> {{ _('Statistics Menu') }}</h2>
     <nav data-module="stats-nav">
       <ul class="unstyled nav nav-simple">
-          <li class="nav-item"><a href="#stats-recent-created-datasets" data-toggle="tab">{{ _('Recent Created Datasets') }}</a></li>
-          <li class="nav-item"><a href="#stats-recent-updated-datasets" data-toggle="tab">{{ _('Recent Updated Datasets') }}</a></li>
+          <li class="nav-item"><a href="#stats-recent-created-datasets" data-toggle="tab">{{ _('Recently Created Datasets') }}</a></li>
+          <li class="nav-item"><a href="#stats-recent-updated-datasets" data-toggle="tab">{{ _('Recently Updated Datasets') }}</a></li>
 {% if h.check_access('sysadmin') %}
         <li class="nav-item"><a href="#stats-user-access-list" data-toggle="tab">{{ _('User Access List') }}</a></li>
           <li class="nav-item"><a href="#stats-users-by-organisation" data-toggle="tab">{{ _('Users By Organisation') }}</a></li>
