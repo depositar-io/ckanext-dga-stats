@@ -63,9 +63,9 @@ function downloadWithName(uri, name) {
 					tdData += "\n";					
 						$(this).filter(':visible').find('th').each(function(index,data) {
 							if ($(this).css('display') != 'none'){
-								if(defaults.ignoreColumn.indexOf(index) == -1){
+
 									tdData += '"' + parseString($(this)) + '"' + defaults.separator;									
-								}
+
 							}
 							
 						});
@@ -78,9 +78,9 @@ function downloadWithName(uri, name) {
 					tdData += "\n";
 						$(this).filter(':visible').find('td').each(function(index,data) {
 							if ($(this).css('display') != 'none'){
-								if(defaults.ignoreColumn.indexOf(index) == -1){
+
 									tdData += '"'+ parseString($(this)) + '"'+ defaults.separator;
-								}
+
 							}
 						});
 						//tdData = $.trim(tdData);
@@ -91,8 +91,9 @@ function downloadWithName(uri, name) {
 					if(defaults.consoleLog == 'true'){
 						console.log(tdData);
 					}
-					var base64data = "base64," + $.base64.encode(tdData);
-					downloadWithName('data:application/'+defaults.type+';filename='+defaults.tableName+'.'+defaults.type+';' + base64data, defaults.tableName+'.'+defaults.type);
+					//var base64data = "base64," + $.base64.encode(tdData);
+					//downloadWithName('data:application/'+defaults.type+';filename='+defaults.tableName+'.'+defaults.type+';' + base64data, defaults.tableName+'.'+defaults.type);
+					saveTextAs(tdData,defaults.tableName+'.'+defaults.type);
 				}else if(defaults.type == 'sql'){
 				
 					// Header
@@ -358,9 +359,9 @@ function downloadWithName(uri, name) {
 				function parseString(data){
 				
 					if(defaults.htmlContent == 'true'){
-						content_data = data.html().trim();
+						content_data = data.html();
 					}else{
-						content_data = data.text().trim();
+						content_data = data.text();
 					}
 					
 					if(defaults.escape == 'true'){

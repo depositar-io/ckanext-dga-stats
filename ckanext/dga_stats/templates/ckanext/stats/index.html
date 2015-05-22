@@ -11,8 +11,8 @@
     <section id="stats-recent-created-datasets" class="module-content tab-content">
       <h2>{{ _('Recently Created Datasets') }}</h2>
       {% if c.recent_created_datasets %}
-        <a style="float:right;   margin-bottom: 10px;" class="btn" href="#" onClick ="$('#recent-created-datasets').tableExport({type:'csv', tableName:'recently-created-datasets'});">Export as CSV</a>
-        <a style="float:right;   margin-bottom: 10px;   margin-right: 10px;" class="btn" href="#"
+        <a style="float:right;   margin-bottom: 10px;" class="btn" href="#" onClick ="$('#recent-created-datasets').tableExport({type:'csv',escape:'false', tableName:'recently-created-datasets'});">Export as CSV</a>
+        <a style="float:right;   margin-bottom: 10px;   margin-right: 10px;" class="btn btn-excel" href="#"
            onClick ="$('#recent-created-datasets').tableExport({type:'excel', tableName:'recently-created-datasets', escape:'false', htmlContent:'true'});">Export as XLSX</a>
         <table class="table table-chunky table-bordered table-striped" id="recent-created-datasets">
           <thead>
@@ -31,7 +31,7 @@
               <td>{{ date }}</td>
               <td>{{ h.link_to(package.title or package.name, h.url_for(controller='package', action='read', id=package.name)) }}</td>
  {% if h.check_access('sysadmin') %}
-              <td>{{ h.link_to(user.display_name or user.name, h.url_for(controller='user', action='read', id=user.name)) }}<br/>{{user.email}}</td>
+              <td>{{ h.link_to(user.display_name or user.name, h.url_for(controller='user', action='read', id=user.name)) }} <br/>{{user.email}}</td>
  {% endif %}
 
               <td>{{h.link_to(group.title or group.name, h.url_for(controller='organization', action='read', id=group.name)) }}</td>
@@ -47,7 +47,7 @@
           <h2>{{ _('Recently Updated Datasets') }}</h2>
           {% if c.recent_updated_datasets %}
           <a style="float:right;   margin-bottom: 10px;" class="btn" href="#" onClick ="$('#recent-updated-datasets').tableExport({type:'csv', tableName:'recently-updated-datasets', escape:'false'});">Export as CSV</a>
-          <a style="float:right;   margin-bottom: 10px;   margin-right: 10px;" class="btn" href="#"
+          <a style="float:right;   margin-bottom: 10px;   margin-right: 10px;" class="btn btn-excel" href="#"
              onClick ="$('#recent-updated-datasets').tableExport({type:'excel', tableName:'recently-updated-datasets', escape:'false', htmlContent:'true'});">Export as XLSX</a>
           <table class="table table-chunky table-bordered table-striped" id="recent-updated-datasets">
               <thead>
@@ -66,7 +66,7 @@
                   <td>{{ date }}</td>
                   <td>{{ h.link_to(package.title or package.name, h.url_for(controller='package', action='read', id=package.name)) }}</td>
  {% if h.check_access('sysadmin') %}
-              <td>{{ h.link_to(user.display_name or user.name, h.url_for(controller='user', action='read', id=user.name)) }}<br/>{{user.email}}</td>
+              <td>{{ h.link_to(user.display_name or user.name, h.url_for(controller='user', action='read', id=user.name)) }} <br/>{{user.email}}</td>
  {% endif %}
                   <td>{{h.link_to(group.title or group.name, h.url_for(controller='organization', action='read', id=group.name)) }}</td>
               </tr>
