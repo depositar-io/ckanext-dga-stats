@@ -11,7 +11,10 @@
     <section id="stats-recent-created-datasets" class="module-content tab-content">
       <h2>{{ _('Recent Created Datasets') }}</h2>
       {% if c.recent_created_datasets %}
-        <table class="table table-chunky table-bordered table-striped">
+        <a style="float:right;   margin-bottom: 10px;" class="btn" href="#" onClick ="$('#recent-created-datasets').tableExport({type:'csv', tableName:'recently-created-datasets'});">Export as CSV</a>
+        <a style="float:right;   margin-bottom: 10px;   margin-right: 10px;" class="btn" href="#"
+           onClick ="$('#recent-created-datasets').tableExport({type:'excel', tableName:'recently-created-datasets', escape:'false', htmlContent:'true'});">Export as XLSX</a>
+        <table class="table table-chunky table-bordered table-striped" id="recent-created-datasets">
           <thead>
             <tr>
               <th>{{ _('Date') }}</th>
@@ -43,7 +46,10 @@
       <section id="stats-recent-updated-datasets" class="module-content tab-content">
           <h2>{{ _('Recent Updated Datasets') }}</h2>
           {% if c.recent_updated_datasets %}
-          <table class="table table-chunky table-bordered table-striped">
+          <a style="float:right;   margin-bottom: 10px;" class="btn" href="#" onClick ="$('#recent-updated-datasets').tableExport({type:'csv', tableName:'recently-updated-datasets', escape:'false'});">Export as CSV</a>
+          <a style="float:right;   margin-bottom: 10px;   margin-right: 10px;" class="btn" href="#"
+             onClick ="$('#recent-updated-datasets').tableExport({type:'excel', tableName:'recently-updated-datasets', escape:'false', htmlContent:'true'});">Export as XLSX</a>
+          <table class="table table-chunky table-bordered table-striped" id="recent-updated-datasets">
               <thead>
               <tr>
                   <th>{{ _('Date') }}</th>

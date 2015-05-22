@@ -1,8 +1,8 @@
 from logging import getLogger
 
+log = getLogger(__name__)
 import ckan.plugins as p
 import datetime as datetime
-log = getLogger(__name__)
 def date_range():
     return list(reversed(range(2013,datetime.datetime.now().year+1)))
 
