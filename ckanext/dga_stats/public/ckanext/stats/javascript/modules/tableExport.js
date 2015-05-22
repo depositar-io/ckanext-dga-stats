@@ -30,12 +30,15 @@ function downloadWithName(uri, name) {
 			el.dispatchEvent(evObj);
 		}
 	}
-
-	var link = document.createElement("a");
-	link.download = name;
-	link.href = uri;
-	eventFire(link, "click");
-
+	var is_chrome = navigator.userAgent.toLowerCase().indexOf('chrome') > -1;
+	if (is_chrome) {
+		var link = document.createElement("a");
+		link.download = name;
+		link.href = uri;
+		eventFire(link, "click");
+	} else {
+		window.open(uri);
+	}
 }
 (function($){
         $.fn.extend({
@@ -295,8 +298,9 @@ function downloadWithName(uri, name) {
 					excelFile += "</body>";
 					excelFile += "</html>";
 
-					var base64data = "base64," + $.base64.encode(excelFile);
-					downloadWithName('data:application/vnd.ms-'+defaults.type+';filename=exportData.doc;' + base64data, defaults.tableName+'.xlsx');
+					//var base64data = "base64," + $.base64.encode(excelFile);
+					//downloadWithName('data:application/vnd.ms-'+defaults.type+';filename=exportData.doc;' + base64data, defaults.tableName+'.xlsx');
+					saveTextAs(excelFile,defaults.tableName+'.xlsx');
 					
 				}else if(defaults.type == 'png'){
 					html2canvas($(el), {
