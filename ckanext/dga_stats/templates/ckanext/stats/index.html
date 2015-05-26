@@ -8,6 +8,8 @@
 {% block primary_content %}
   <article class="module">
 
+{% set date_format="%d-%m-%Y" %}
+
     <section id="stats-recent-created-datasets" class="module-content tab-content">
       <h2>{{ _('Recently Created Datasets') }}</h2>
       {% if c.recent_created_datasets %}
@@ -28,7 +30,7 @@
           <tbody>
           {% for date,package,group,user in c.recent_created_datasets|reverse() %}
           <tr>
-              <td>{{ date }}</td>
+                  <td>{{ date.strftime(date_format) }}</td>
               <td>{{ h.link_to(package.title or package.name, h.url_for(controller='package', action='read', id=package.name)) }}</td>
  {% if h.check_access('sysadmin') %}
               <td>{{ h.link_to(user.display_name or user.name, h.url_for(controller='user', action='read', id=user.name)) }} <br/>{{user.email}}</td>
@@ -63,7 +65,7 @@
               <tbody>
               {% for date,package,group,user in c.recent_updated_datasets|reverse() %}
               <tr>
-                  <td>{{ date }}</td>
+                  <td>{{ date.strftime(date_format) }}</td>
                   <td>{{ h.link_to(package.title or package.name, h.url_for(controller='package', action='read', id=package.name)) }}</td>
  {% if h.check_access('sysadmin') %}
               <td>{{ h.link_to(user.display_name or user.name, h.url_for(controller='user', action='read', id=user.name)) }} <br/>{{user.email}}</td>
