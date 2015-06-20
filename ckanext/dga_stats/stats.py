@@ -191,22 +191,28 @@ class Stats(object):
     @classmethod
     def recent_created_datasets(cls):
         connection = model.Session.connection()
-        result = connection.execute("select timestamp,package.id,user_id from package "
-                                    "inner join activity on activity.object_id=package.id "
+        result = connection.execute("select timestamp,package.id,user_id,maintainer from package "
+                                    "inner join (select id, min(revision_timestamp) as timestamp from package_revision group by id) a on a.id=package.id "
+                                    "full outer join (select object_id,user_id from activity "
+                                    "where activity_type = 'new package' and timestamp > NOW() - interval '60 day') act on act.object_id=package.id "
                                     "FULL OUTER JOIN (select package_id,key from package_extra "
                                     "where key = 'harvest_portal') e on e.package_id=package.id "
-                                    "where key is null and activity_type = 'new package' "
+                                    "where key is null and private = 'f' and state='active' "
                                     "and timestamp > NOW() - interval '60 day' order by timestamp asc;").fetchall()
         r = []
-        for timestamp, package_id, user_id in result:
+        for timestamp, package_id, user_id, maintainer in result:
             package = model.Session.query(model.Package).get(unicode(package_id))
+	    if user_id:
+		    user = model.Session.query(model.User).get(unicode(user_id))
+	    else:
+		    user = model.User.by_name(unicode(maintainer))
             if package.owner_org:
                 r.append((
                 datetime2date(timestamp), package, model.Session.query(model.Group).get(unicode(package.owner_org)),
-                model.Session.query(model.User).get(unicode(user_id))))
+                user))
             else:
                 r.append(
-                    (datetime2date(timestamp), package, None, model.Session.query(model.User).get(unicode(user_id))))
+                    (datetime2date(timestamp), package, None,user))
         return r
 
     @classmethod
@@ -217,7 +223,7 @@ class Stats(object):
                                     "FULL OUTER JOIN (select package_id,key from package_extra "
                                     "where key = 'harvest_portal') e on e.package_id=package.id "
                                     "where key is null and activity_type = 'changed package' "
-                                    "and timestamp > NOW() - interval '60 day' "
+                                    "and timestamp > NOW() - interval '60 day' and private = 'f' and state='active'"
                                     "GROUP BY package.id,user_id,timestamp::date,activity_type "
                                     "order by timestamp::date asc ;").fetchall()
         r = []
