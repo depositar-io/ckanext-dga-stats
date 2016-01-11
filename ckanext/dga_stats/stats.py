@@ -77,7 +77,7 @@ class Stats(object):
     def by_org(cls, limit=10):
         connection = model.Session.connection()
         res = connection.execute("select package.owner_org, package.private, count(*) from package \
-		inner join (select distinct package_id from resource_group inner join resource on resource.resource_group_id = resource_group.id) as r on package.id = r.package_id \
+		inner join (select distinct package_id from resource_group inner join resource on resource.resource_group_id = resource_group.id where resource.state='active') as r on package.id = r.package_id \
 		inner join \"group\" on package.owner_org = \"group\".id \
 		where package.state='active'\
 		group by package.owner_org,\"group\".name, package.private \
