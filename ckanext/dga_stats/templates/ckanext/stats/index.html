@@ -125,7 +125,7 @@
           {% endif %}
       </section>
       <section id="stats-users-by-organisation" class="module-content tab-content">
-      <h2>{{ _('Users by Organisation') }}</h2>
+      <h2>{{ _('Users by Organization') }}</h2>
       {% if c.users_by_organisation %}
           {%set sysadmins = False %}
           <a style="float:right;   margin-bottom: 10px;" class="btn" href="#" onClick ="$('#users_by_organisation').tableExport({type:'csv',escape:'false', tableName:'users_by_organisation'});">Export as CSV</a>
@@ -135,12 +135,12 @@
           <table class="table table-chunky table-bordered table-striped" id="users_by_organisation">
           <thead>
           <tr>
-              <th class="metric">{{ _('Organisation') }}</th>
+              <th class="metric">{{ _('Organization') }}</th>
               <th>{{ _('User') }}</th>
               <th>{{ _('User Login') }}</th>
               <th>{{ _('User Email') }}</th>
               <th>{{ _('Role') }}</th>
-              <th>Sysadmin</th>
+	      <th>{{ _('Sysadmins') }}</th>
           </tr>
           </thead>
           <tbody>
@@ -452,7 +452,7 @@
           <li class="nav-item"><a href="#stats-recent-updated-datasets" data-toggle="tab">{{ _('Recently Updated Datasets') }}</a></li>
 {% if h.check_access('sysadmin') %}
         <li class="nav-item"><a href="#stats-user-access-list" data-toggle="tab">{{ _('User Access List') }}</a></li>
-          <li class="nav-item"><a href="#stats-users-by-organisation" data-toggle="tab">{{ _('Users By Organisation') }}</a></li>
+          <li class="nav-item"><a href="#stats-users-by-organisation" data-toggle="tab">{{ _('Users By Organization') }}</a></li>
 {% endif %}
         <li class="nav-item"><a href="#stats-total-datasets" data-toggle="tab">{{ _('Total Number of Datasets') }}</a></li>
         <li class="nav-item"><a href="#stats-dataset-revisions" data-toggle="tab">{{ _('Dataset Revisions per Week') }}</a></li>
