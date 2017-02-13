@@ -26,7 +26,7 @@ class StatsController(BaseController):
         c.top_rated_packages = self.timed(stats.top_rated_packages)
         c.most_edited_packages = self.timed(stats.most_edited_packages)
         c.largest_groups = self.timed(stats.largest_groups)
-        c.top_package_owners = self.timed(stats.top_package_owners)
+        c.top_package_creators = stats.top_package_creators()
         c.summary_stats = self.timed(stats.summary_stats)
         c.activity_counts = self.timed(stats.activity_counts)
         c.by_org = self.timed(stats.by_org)
