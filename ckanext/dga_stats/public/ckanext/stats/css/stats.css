@@ -14,3 +14,6 @@
   height: 300px;
   margin: 20px 0;
 }
+.ie8 .btn-excel, .ie7 .btn-excel {
+  display: none !important;
+}

@@ -1,5 +1,6 @@
 {% extends "page.html" %}
 
+{% block subtitle %}{{ _("Site Statistics") }}{% endblock %}
 {% block breadcrumb_content %}
   <li class="active">
     <a class="active" href="/stats">{{ _('Statistics') }}</a>
@@ -8,84 +9,159 @@
 
 {% block primary_content %}
   <article class="module">
-{% if h.check_access('sysadmin') %}
-    <section id="stats-activity-counts" class="module-content tab-content">
-      <h2>{{ _('Site Activity Log') }}</h2>
-      {% if c.activity_counts %}
-        <table class="table table-chunky table-bordered table-striped">
-          <thead>
-            <tr>
-              <th>{{ _('Month') }}</th>
-              <th>{{ _('Activity Type') }}</th>
-              <th class="metric">{{ _('Count') }}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for month, type, count in c.activity_counts %}
-              <tr>
-                <td>{{ month }}</td>
-                <td>{{ type }}</td>
-                <td class="metric">{{ count }}</td>
-              </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      {% else %}
-        <p class="empty">{{ _('No groups') }}</p>
-      {% endif %}
-    </section>
-    <section id="stats-recent-datasets" class="module-content tab-content">
-      <h2>{{ _('Recent Datasets') }}</h2>
-      {% if c.recent_datasets %}
-        <table class="table table-chunky table-bordered table-striped">
+
+{% set date_format="%d-%m-%Y" %}
+
+    <section id="stats-recent-created-datasets" class="module-content tab-content">
+      <h2>{{ _('Recently Created Datasets') }}</h2>
+      {% if c.recent_created_datasets %}
+        <a style="float:right;   margin-bottom: 10px;" class="btn" href="#" onClick ="$('#recent-created-datasets').tableExport({type:'csv',escape:'false', tableName:'recently-created-datasets'});">Export as CSV</a>
+        <a style="float:right;   margin-bottom: 10px;   margin-right: 10px;" class="btn btn-excel" href="#"
+           onClick ="$('#recent-created-datasets').tableExport({type:'excel', tableName:'recently-created-datasets', escape:'false', htmlContent:'true'});">Export as XLSX</a>
+        <table class="table table-chunky table-bordered table-striped" id="recent-created-datasets">
           <thead>
             <tr>
               <th>{{ _('Date') }}</th>
-              <th>{{ _('Dataset') }}</th>
-              <th>{{ _('New/Modified') }}</th>
+              <th>{{ _('Dataset Name') }}</th>
+ {% if h.check_access('sysadmin') %}
+              <th>{{ _('User') }}</th>
+ {% endif %}
+              <th>{{ _('Organization') }}</th>
             </tr>
           </thead>
           <tbody>
-            {% for date,package,newmodified in c.recent_datasets %}
-              <tr>
-                <td>{{ date }}</td>
-                <td>{{ h.link_to(package.title or package.name, h.url_for(controller='package', action='read', id=package.name)) }}</td>
-                <td>{{ newmodified }}</td>
+          {% for date,package,group,user in c.recent_created_datasets|reverse() %}
+          <tr>
+                  <td>{{ date.strftime(date_format) }}</td>
+              <td>{{ h.link_to(package.title or package.name, h.url_for(controller='package', action='read', id=package.name)) }}</td>
+ {% if h.check_access('sysadmin') %}
+              <td>{{ h.link_to(user.display_name or user.name, h.url_for(controller='user', action='read', id=user.name)) }} <br/>{{user.email}}</td>
+ {% endif %}
+
+              <td>{{h.link_to(group.title or group.name, h.url_for(controller='organization', action='read', id=group.name)) }}</td>
               </tr>
             {% endfor %}
           </tbody>
         </table>
       {% else %}
-        <p class="empty">{{ _('No groups') }}</p>
+        <p class="empty">{{ _('No created datasets') }}</p>
       {% endif %}
     </section>
-    <section id="stats-user-access-list" class="module-content tab-content">
-      <h2>{{ _('User Access List') }}</h2>
-      {% if c.user_access_list %}
-        <table class="table table-chunky table-bordered table-striped">
-          <thead>
-            <tr>
-              <th>{{ _('Username') }}</th>
-              <th>{{ _('Sysadmins') }}</th>
-              <th class="metric">{{ _('Role') }}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for username,sysadmin,role in c.user_access_list %}
+      <section id="stats-recent-updated-datasets" class="module-content tab-content">
+          <h2>{{ _('Recently Updated Datasets') }}</h2>
+          {% if c.recent_updated_datasets %}
+          <a style="float:right;   margin-bottom: 10px;" class="btn" href="#" onClick ="$('#recent-updated-datasets').tableExport({type:'csv', tableName:'recently-updated-datasets', escape:'false'});">Export as CSV</a>
+          <a style="float:right;   margin-bottom: 10px;   margin-right: 10px;" class="btn btn-excel" href="#"
+             onClick ="$('#recent-updated-datasets').tableExport({type:'excel', tableName:'recently-updated-datasets', escape:'false', htmlContent:'true'});">Export as XLSX</a>
+          <table class="table table-chunky table-bordered table-striped" id="recent-updated-datasets">
+              <thead>
               <tr>
-                <td>{{ username }}</td>
+                  <th>{{ _('Date') }}</th>
+                  <th>{{ _('Dataset Name') }}</th>
+ {% if h.check_access('sysadmin') %}
+                  <th>{{ _('User') }}</th>
+ {% endif %}
+                  <th>{{ _('Organization') }}</th>
+              </tr>
+              </thead>
+              <tbody>
+              {% for date,package,group,user in c.recent_updated_datasets|reverse() %}
+              <tr>
+                  <td>{{ date.strftime(date_format) }}</td>
+                  <td>{{ h.link_to(package.title or package.name, h.url_for(controller='package', action='read', id=package.name)) }}</td>
+ {% if h.check_access('sysadmin') %}
+              <td>{{ h.link_to(user.display_name or user.name, h.url_for(controller='user', action='read', id=user.name)) }} <br/>{{user.email}}</td>
+ {% endif %}
+                  <td>{{h.link_to(group.title or group.name, h.url_for(controller='organization', action='read', id=group.name)) }}</td>
+              </tr>
+              {% endfor %}
+              </tbody>
+          </table>
+          {% else %}
+          <p class="empty">{{ _('No created datasets') }}</p>
+          {% endif %}
+      </section>
+      {% if h.check_access('sysadmin') %}
+      <section id="stats-user-access-list" class="module-content tab-content">
+          <h2>{{ _('User Access List') }}</h2>
+          {% if c.user_access_list %}
+          {% for year in h.date_range() %}
+          <h3>{{ year }}</h3>
+          <table class="table table-chunky table-bordered table-striped">
+              <thead>
+              <tr>
+                  <th>{{ _('Username') }}</th>
+                  <th>{{ _('Sysadmins') }}</th>
+                  <th class="metric">{{ _('Role') }}</th>
+                  <th class="metric">Last Activity</th>
+              </tr>
+              </thead>
+              <tbody>
+
+            {% for user,sysadmin,role,last_activity,orgs in c.user_access_list %}
+            {% if year == last_activity.year %}
+              <tr>
+                <td>{{ h.link_to(user.display_name or user.name, h.url_for(controller='user', action='read', id=user.name)) }}
+
+		</td>
                 <td>{{ sysadmin }}</td>
-                <td>{{ role }}</td>
-              </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      {% else %}
-        <p class="empty">{{ _('No groups') }}</p>
-      {% endif %}
-    </section>
+                <td>{{ role }}<br/>
+{% if orgs[0] %}
+{% for org in orgs %}
+{{ h.link_to(org, h.url_for(controller='organization', action='read', id=org))  }}
+{% endfor %}
 {% endif %}
-    <section id="stats-total-datasets" class="module-content tab-content active">
+</td>
+                  <td>{{ last_activity }}</td>
+              </tr>
+            {% endif %}
+            {% endfor %}
+
+              </tbody>
+          </table>
+          {% endfor %}
+          {% else %}
+          <p class="empty">{{ _('No groups') }}</p>
+          {% endif %}
+      </section>
+      <section id="stats-users-by-organisation" class="module-content tab-content">
+      <h2>{{ _('Users by Organisation') }}</h2>
+      {% if c.users_by_organisation %}
+          {%set sysadmins = False %}
+          <a style="float:right;   margin-bottom: 10px;" class="btn" href="#" onClick ="$('#users_by_organisation').tableExport({type:'csv',escape:'false', tableName:'users_by_organisation'});">Export as CSV</a>
+          <a style="float:right;   margin-bottom: 10px;   margin-right: 10px;" class="btn btn-excel" href="#"
+             onClick ="$('#users_by_organisation').tableExport({type:'excel', tableName:'users_by_organisation', escape:'false', htmlContent:'true'});">Export as XLSX</a>
+
+          <table class="table table-chunky table-bordered table-striped" id="users_by_organisation">
+          <thead>
+          <tr>
+              <th class="metric">{{ _('Organisation') }}</th>
+              <th>{{ _('User') }}</th>
+              <th>{{ _('User Login') }}</th>
+              <th>{{ _('User Email') }}</th>
+              <th>{{ _('Role') }}</th>
+              <th>Sysadmin</th>
+          </tr>
+          </thead>
+          <tbody>
+          {% for org,user,role,sysadmin in c.users_by_organisation %}
+          <tr>
+              <td>{{ h.link_to(org.title, h.url_for(controller='organization', action='read', id=org.name)) }}</td>
+              <td>{{ h.link_to(user.display_name or user.name, h.url_for(controller='user', action='read', id=user.name)) }}</td>
+              <td>{{ h.link_to(user.name, h.url_for(controller='user', action='read', id=user.name)) }}</td>
+              <td>{{ h.link_to(user.email, h.url_for(controller='user', action='read', id=user.name)) }}</td>
+              <td>{{ role }}<br/></td>
+              <td>{{ sysadmin }}<br/></td>
+          </tr>
+          {% endfor %}
+          </tbody>
+      </table>
+      {% else %}
+      <p class="empty">{{ _('No groups') }}</p>
+      {% endif %}
+  </section>
+{% endif %}
+    <section id="stats-total-datasets" class="module-content tab-content">
       <h2>{{ _('Total number of Datasets') }}</h2>
 
       {% set xaxis = {'mode': 'time', 'timeformat': '%y-%b'} %}
@@ -98,7 +174,7 @@
           </tr>
         </thead>
         <tbody>
-          {% for row in c.raw_packages_by_week %}
+          {% for row in c.raw_packages_by_week|reverse() %}
             <tr>
               <th data-type="date" data-value="{{ row.date.strftime("%s") }}"><time datetime="{{ row.date.isoformat() }}">{{ h.render_datetime(row.date) }}</time></th>
               <td>{{ row.total_packages }}</td>
@@ -122,7 +198,7 @@
           </tr>
         </thead>
         <tbody>
-          {% for row in c.raw_all_package_revisions %}
+          {% for row in c.raw_all_package_revisions|reverse() %}
             <tr>
               <th data-type="date" data-value="{{ row.date.strftime("%s") }}"><time datetime="{{ row.date.isoformat() }}">{{ h.render_datetime(row.date) }}</time></th>
               <td>{{ row.total_revisions }}</td>
@@ -339,7 +415,7 @@
         <p class="empty">{{ _('No groups') }}</p>
       {% endif %}
     </section>
-    <section id="stats-summary" class="module-content tab-content">
+    <section id="stats-summary" class="module-content tab-content active">
       <h2>{{ _('Summary') }}</h2>
       {% if c.summary_stats %}
         <table class="table table-chunky table-bordered table-striped">
@@ -372,9 +448,11 @@
     <h2 class="module-heading"><i class="icon-bar-chart icon-medium"></i> {{ _('Statistics Menu') }}</h2>
     <nav data-module="stats-nav">
       <ul class="unstyled nav nav-simple">
+          <li class="nav-item"><a href="#stats-recent-created-datasets" data-toggle="tab">{{ _('Recently Created Datasets') }}</a></li>
+          <li class="nav-item"><a href="#stats-recent-updated-datasets" data-toggle="tab">{{ _('Recently Updated Datasets') }}</a></li>
 {% if h.check_access('sysadmin') %}
-        <li class="nav-item"><a href="#stats-recent-datasets" data-toggle="tab">{{ _('Recent Datasets') }}</a></li>
         <li class="nav-item"><a href="#stats-user-access-list" data-toggle="tab">{{ _('User Access List') }}</a></li>
+          <li class="nav-item"><a href="#stats-users-by-organisation" data-toggle="tab">{{ _('Users By Organisation') }}</a></li>
 {% endif %}
         <li class="nav-item"><a href="#stats-total-datasets" data-toggle="tab">{{ _('Total Number of Datasets') }}</a></li>
         <li class="nav-item"><a href="#stats-dataset-revisions" data-toggle="tab">{{ _('Dataset Revisions per Week') }}</a></li>

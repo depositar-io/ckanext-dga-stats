@@ -79,7 +79,7 @@ this.ckan.module('plot', function (jQuery, _) {
      */
     setupCanvas: function () {
       this.canvas = jQuery('<div class="module-plot-canvas">');
-      this.el.replaceWith(this.canvas);
+      this.el.before(this.canvas);
     },
 
     /* Attempts to draw the chart if the canvas is visible. If not visible the
